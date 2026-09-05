@@ -9,6 +9,7 @@ dependencies = [
     "manifold3d>=3.0",
     "numpy>=2.0",
     "cairosvg>=2.7",
+    "mapbox-earcut>=1.0",  # polygon triangulation for trimesh extrusions
 ]
 
 [project.scripts]

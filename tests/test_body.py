@@ -2,7 +2,7 @@ import numpy as np
 from shapely.geometry import box
 
 from dominoez.body import body, engrave
-from dominoez.spec import BODY, ENGRAVING
+from dominoez.spec import BODY, ENGRAVING, TEXTURE
 
 
 def test_body_is_a_watertight_convex_slab():
@@ -43,4 +43,50 @@ def test_engraving_is_mirrored_so_each_face_reads_correctly():
 def test_engraving_removes_the_expected_volume():
     square = box(-5, -5, 5, 5)
     removed = body().volume - engrave(square).volume
-    assert abs(removed - 2 * 100 * ENGRAVING.depth) < 1.0
+    shallow = 2 * 100 * (ENGRAVING.depth - TEXTURE.amplitude)
+    deep = 2 * 100 * (ENGRAVING.depth + TEXTURE.amplitude)
+    assert shallow < removed < deep
+    assert abs(removed - 2 * 100 * ENGRAVING.depth) < 2 * 100 * TEXTURE.amplitude / 2
+
+
+def test_pocket_floor_carries_the_bump_lattice():
+    from dominoez.body import floor_depth
+
+    # The origin is a bump top (shallowest). Find the deepest point numerically.
+    us = np.linspace(-6, 6, 241)
+    gu, gv = np.meshgrid(us, us, indexing="ij")
+    d = floor_depth(gu, gv)
+    assert abs(d[120, 120] - (ENGRAVING.depth - TEXTURE.amplitude)) < 1e-9
+    i, j = np.unravel_index(np.argmax(d), d.shape)
+    assert abs(d[i, j] - (ENGRAVING.depth + TEXTURE.amplitude)) < 1e-3
+
+    m = engrave(box(-6, -6, 6, 6))
+    y_face = -BODY.thickness / 2
+    z0 = BODY.height / 2
+    shallow_probe = [0, y_face + ENGRAVING.depth - TEXTURE.amplitude * 0.6, z0]
+    deep_probe = [gu[i, j], y_face + ENGRAVING.depth + TEXTURE.amplitude * 0.6, z0 + gv[i, j]]
+    inside = m.contains(np.array([shallow_probe, deep_probe]))
+    assert list(inside) == [True, False]
+
+
+def test_lattice_rows_are_offset_by_half_a_bump():
+    from dominoez.body import floor_depth
+
+    s = TEXTURE.spacing
+    row_height = s * np.sqrt(3) / 2 * TEXTURE.row_squash
+    tops = ENGRAVING.depth - TEXTURE.amplitude
+    assert abs(floor_depth(np.array(s), np.array(0.0)) - tops) < 1e-9  # neighbour in the same row
+    assert abs(floor_depth(np.array(s / 2), np.array(row_height)) - tops) < 1e-9  # next row, offset
+    assert floor_depth(np.array(0.0), np.array(row_height)) > tops + TEXTURE.amplitude  # not directly above
+
+
+
+def test_engraving_a_union_with_near_duplicate_vertices():
+    # Circles unioned with a square leave vertices a hair apart; the pocket must still close.
+    from shapely.geometry import Point
+
+    shape = box(-5, -5, 5, 5).union(Point(-5, 5).buffer(5)).union(Point(5, 5).buffer(5))
+    m = engrave(shape)
+    assert m.is_watertight
+    removed = body().volume - m.volume
+    assert abs(removed - 2 * ENGRAVING.depth * shape.area) < 2 * shape.area * TEXTURE.amplitude

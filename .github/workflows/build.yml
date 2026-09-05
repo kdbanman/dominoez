@@ -8,6 +8,8 @@ jobs:
   build:
     # Pinned so the apt prusa-slicer version, and therefore the committed gcode, stays stable.
     runs-on: ubuntu-24.04
+    outputs:
+      motifs: ${{ steps.motifs.outputs.motifs }}
     steps:
       - uses: actions/checkout@v4
       - uses: astral-sh/setup-uv@v6
@@ -24,9 +26,29 @@ jobs:
         run: |
           git add -N stl svg png gcode
           git diff --exit-code --stat -- stl svg png gcode
-      - name: gcode for every motif
+      - id: motifs
+        run: echo "motifs=$(uv run dominoez list | cut -f1 | jq -R . | jq -sc .)" >> "$GITHUB_OUTPUT"
+      - name: all gcode, for the per-motif fan-out below
         uses: actions/upload-artifact@v4
         with:
-          name: gcode
+          name: gcode-all
           path: gcode/*.gcode
+          if-no-files-found: error
+
+  gcode:
+    # One artifact per motif, named after it, so a download is <motif>.gcode.zip holding <motif>.gcode.
+    needs: build
+    runs-on: ubuntu-24.04
+    strategy:
+      matrix:
+        motif: ${{ fromJson(needs.build.outputs.motifs) }}
+    steps:
+      - uses: actions/download-artifact@v4
+        with:
+          name: gcode-all
+          path: gcode
+      - uses: actions/upload-artifact@v4
+        with:
+          name: ${{ matrix.motif }}.gcode
+          path: gcode/${{ matrix.motif }}.gcode
           if-no-files-found: error

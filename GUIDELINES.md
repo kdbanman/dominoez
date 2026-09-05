@@ -2,7 +2,7 @@
 
 Everything here follows from one fact: a domino prints standing on its foot, on a single-colour printer with a 0.4 mm nozzle. Vocabulary is in `CONTEXT.md`. Why we chose the tools is in `docs/adr/`.
 
-The printer is a Creality CR-10 Smart Pro and the filament is PLA. Both are fixed, so slicing is part of the build: `slicer/profile.ini` holds the PrusaSlicer settings (0.20 mm layers, 3 perimeters, 10% grid infill, a skirt, no supports). Only the blank's gcode is committed, as a check that the slicer output has not drifted; every motif's gcode comes from the `gcode` artifact of the latest CI run. Change the profile only by printing the change first, then pasting the config block from that gcode over the file.
+The printer is a Creality CR-10 Smart Pro and the filament is PLA. Both are fixed, so slicing is part of the build: `slicer/profile.ini` holds the PrusaSlicer settings (0.20 mm layers, 3 perimeters, 10% grid infill, a skirt, no supports). Only the blank's gcode is committed, as a check that the slicer output has not drifted; every motif's gcode is an artifact named `<motif>.gcode` on the latest CI run. Change the profile only by printing the change first, then pasting the config block from that gcode over the file.
 
 ## Body
 

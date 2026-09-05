@@ -44,3 +44,14 @@ def test_engraving_removes_the_expected_volume():
     square = box(-5, -5, 5, 5)
     removed = body().volume - engrave(square).volume
     assert abs(removed - 2 * 100 * ENGRAVING.depth) < 1.0
+
+
+def test_engraving_a_union_with_near_duplicate_vertices():
+    # Circles unioned with a square leave vertices a hair apart; the pocket must still close.
+    from shapely.geometry import Point
+
+    shape = box(-5, -5, 5, 5).union(Point(-5, 5).buffer(5)).union(Point(5, 5).buffer(5))
+    m = engrave(shape)
+    assert m.is_watertight
+    removed = body().volume - m.volume
+    assert abs(removed - 2 * ENGRAVING.depth * shape.area) < 2.0

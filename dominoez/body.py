@@ -15,6 +15,7 @@ from .geometry import rounded_rect
 from .spec import BODY, ENGRAVING
 
 _CUT_OVERSHOOT = 0.5  # how far a pocket prism pokes out past the face, so the boolean is clean
+_CLEAN = 0.005  # mm; vertices closer than this are merged before extrusion
 
 
 def _profile() -> list[tuple[float, float]]:
@@ -79,7 +80,11 @@ def pockets(engraved: BaseGeometry) -> list[trimesh.Trimesh]:
                 [(flip_u * u, -v) for u, v in poly.exterior.coords],
                 [[(flip_u * u, -v) for u, v in ring.coords] for ring in poly.interiors],
             )
-            prism = trimesh.creation.extrude_polygon(flipped, ENGRAVING.depth + _CUT_OVERSHOOT)
+            # Unions leave near-coincident vertices that break triangulation.
+            cleaned = flipped.simplify(_CLEAN, preserve_topology=True)
+            prism = trimesh.creation.extrude_polygon(cleaned, ENGRAVING.depth + _CUT_OVERSHOOT)
+            if not prism.is_volume:
+                raise RuntimeError("pocket prism is not a closed volume; the motif polygon is degenerate")
             prism.apply_transform(transform)
             out.append(prism)
     return out

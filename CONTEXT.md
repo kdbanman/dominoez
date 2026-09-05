@@ -28,6 +28,10 @@ _Avoid_: Design, icon, glyph, graphic, image
 Cut into the face. The only relief style motifs use.
 _Avoid_: Inset, recessed, debossed, embossed, raised
 
+**Floor texture**:
+The shallow relief on every pocket floor, a vertically compressed lattice of smooth bumps that reads as woven threads, so a recess reads against the flat face. One texture for the whole set.
+_Avoid_: Pattern, surface finish, bump map, weave
+
 **Blank**:
 A domino with no motif. The reference body, printed first to check that the shape stands and prints cleanly.
 

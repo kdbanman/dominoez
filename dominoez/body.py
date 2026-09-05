@@ -12,9 +12,10 @@ from shapely.geometry import Polygon
 from shapely.geometry.base import BaseGeometry
 
 from .geometry import rounded_rect
-from .spec import BODY, ENGRAVING
+from .spec import BODY, ENGRAVING, TEXTURE, motif_box_size
 
 _CUT_OVERSHOOT = 0.5  # how far a pocket prism pokes out past the face, so the boolean is clean
+_CLEAN = 0.005  # mm; vertices closer than this are merged before extrusion
 
 
 def _profile() -> list[tuple[float, float]]:
@@ -68,18 +69,102 @@ def _polygons(geom: BaseGeometry) -> list[Polygon]:
     return [g for g in geom.geoms if isinstance(g, Polygon) and not g.is_empty]
 
 
+def floor_depth(u: np.ndarray, v: np.ndarray) -> np.ndarray:
+    """Engraving depth at each (u, v): shallowest on the bumps, deepest in the gaps.
+
+    The sum of three cosines whose wave vectors are 60 degrees apart peaks on a
+    triangular lattice. With wave vectors of length k the lattice spacing is
+    (2 / sqrt(3)) * (2 pi / k), so k is chosen from the requested spacing. The
+    sum ranges from -1.5 (gaps) to 3 (bump tops); it is rescaled so depth spans
+    exactly mean - amplitude (bump top) to mean + amplitude (gap). Rows are
+    compressed vertically by TEXTURE.row_squash.
+    """
+    k = 2 * np.pi / (TEXTURE.spacing * np.sqrt(3) / 2)
+    v = v / TEXTURE.row_squash  # squeeze the rows together, stretching bumps sideways
+    # Wave vectors at 90, 30 and 150 degrees put the bump rows along u.
+    s = (
+        np.cos(k * v)
+        + np.cos(k * (u * np.sqrt(3) / 2 + v / 2))
+        + np.cos(k * (u * np.sqrt(3) / 2 - v / 2))
+    )
+    relief = (s + 1.5) / 4.5  # 0 in the gaps, 1 on the bump tops
+    return ENGRAVING.depth + TEXTURE.amplitude - 2 * TEXTURE.amplitude * relief
+
+
+def _floor_solid() -> trimesh.Trimesh:
+    """A slab, in the extrusion frame, whose top surface is the textured pocket floor.
+
+    Intersecting a pocket prism with this slab gives the prism a wavy floor while
+    leaving its walls straight. The lattice is symmetric under u -> -u and
+    v -> -v, so the same slab serves both faces despite the u flip.
+    """
+    w, h = motif_box_size()
+    pad = TEXTURE.step * 2
+    xs = np.arange(-w / 2 - pad, w / 2 + pad + TEXTURE.step / 2, TEXTURE.step)
+    ys = np.arange(-h / 2 - pad, h / 2 + pad + TEXTURE.step / 2, TEXTURE.step)
+    gx, gy = np.meshgrid(xs, ys, indexing="ij")
+    # The extrusion frame is (u, -v, depth): the slab's y is -v; the lattice is even in v.
+    top = _CUT_OVERSHOOT + floor_depth(gx, -gy)
+    bottom = np.full_like(top, -1.0)
+    nx, ny = gx.shape
+    verts = np.concatenate(
+        [
+            np.column_stack([gx.ravel(), gy.ravel(), top.ravel()]),
+            np.column_stack([gx.ravel(), gy.ravel(), bottom.ravel()]),
+        ]
+    )
+    n = nx * ny
+
+    def idx(i, j, layer=0):
+        return layer * n + i * ny + j
+
+    i, j = np.meshgrid(np.arange(nx - 1), np.arange(ny - 1), indexing="ij")
+    i, j = i.ravel(), j.ravel()
+    a, b, c, d = idx(i, j), idx(i + 1, j), idx(i + 1, j + 1), idx(i, j + 1)
+    top_faces = np.concatenate([np.column_stack([a, b, c]), np.column_stack([a, c, d])])
+    bottom_faces = top_faces[:, ::-1] + n
+    sides = []
+    for ring in (
+        [idx(i, 0) for i in range(nx)],  # y min edge
+        [idx(nx - 1, j) for j in range(ny)],  # x max edge
+        [idx(i, ny - 1) for i in range(nx - 1, -1, -1)],  # y max edge
+        [idx(0, j) for j in range(ny - 1, -1, -1)],  # x min edge
+    ):
+        for p, q in zip(ring[:-1], ring[1:]):
+            sides.append([p, q + n, q])
+            sides.append([p, p + n, q + n])
+    faces = np.concatenate([top_faces, bottom_faces, np.array(sides)])
+    slab = trimesh.Trimesh(verts, faces, process=False)
+    if slab.volume < 0:
+        slab.invert()
+    if not slab.is_volume:
+        raise RuntimeError("floor slab is not a closed volume")
+    return slab
+
+
 def pockets(engraved: BaseGeometry) -> list[trimesh.Trimesh]:
-    """One prism per polygon per face, positioned to be subtracted from the body."""
+    """One textured prism per polygon per face, positioned to be subtracted from the body."""
+    polys = _polygons(engraved)
+    if not polys:
+        return []
+    floor = _floor_solid()
     out = []
     for face in ("A", "B"):
         flip_u = -1.0 if face == "B" else 1.0
         transform = _face_transform(face)
-        for poly in _polygons(engraved):
+        for poly in polys:
             flipped = Polygon(
                 [(flip_u * u, -v) for u, v in poly.exterior.coords],
                 [[(flip_u * u, -v) for u, v in ring.coords] for ring in poly.interiors],
             )
-            prism = trimesh.creation.extrude_polygon(flipped, ENGRAVING.depth + _CUT_OVERSHOOT)
+            # Unions leave near-coincident vertices that break triangulation.
+            cleaned = flipped.simplify(_CLEAN, preserve_topology=True)
+            prism = trimesh.creation.extrude_polygon(
+                cleaned, _CUT_OVERSHOOT + ENGRAVING.depth + TEXTURE.amplitude + 0.1
+            )
+            if not prism.is_volume:
+                raise RuntimeError("pocket prism is not a closed volume; the motif polygon is degenerate")
+            prism = trimesh.boolean.intersection([prism, floor], engine="manifold")
             prism.apply_transform(transform)
             out.append(prism)
     return out

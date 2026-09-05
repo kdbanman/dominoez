@@ -5,6 +5,7 @@ from pathlib import Path
 from .build import REPO, Unprintable, build_motif, render_motif
 from .check import check
 from .motifs import MOTIFS
+from .slice import SlicerMissing, slice_motif, stats
 
 
 def _select(names: list[str]):
@@ -23,6 +24,7 @@ def main(argv: list[str] | None = None) -> None:
         ("build", "check, render SVG and PNG, and export STL"),
         ("render", "check and render SVG and PNG only (for approval)"),
         ("check", "run printability checks and report"),
+        ("slice", "slice built STLs to gcode with PrusaSlicer"),
     ):
         sp = sub.add_parser(cmd, help=doc)
         sp.add_argument("names", nargs="*")
@@ -37,6 +39,17 @@ def main(argv: list[str] | None = None) -> None:
 
     failed = False
     for motif in _select(args.names):
+        if args.cmd == "slice":
+            try:
+                gcode = slice_motif(motif, args.out)
+            except (SlicerMissing, FileNotFoundError) as e:
+                sys.exit(str(e))
+            summary = stats(gcode)
+            print(
+                f"{motif.name}: slice ok, {summary.get('filament used [g]', '?')} g, "
+                f"{summary.get('estimated printing time (normal mode)', '?')}"
+            )
+            continue
         if args.cmd == "check":
             problems = check(motif.geometry())
             status = "ok" if not problems else "FAIL"

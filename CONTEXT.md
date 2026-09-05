@@ -30,3 +30,11 @@ _Avoid_: Inset, recessed, debossed, embossed, raised
 
 **Blank**:
 A domino with no motif. The reference body, printed first to check that the shape stands and prints cleanly.
+
+**Motif box**:
+The rectangle on a face inside which a motif must stay. It is the face minus a fixed margin.
+_Avoid_: Safe area, canvas, bounds
+
+**Grid motif**:
+A motif defined as a grid of cells that are either live or dead, rendered in one of two styles (live cells cut, or field cut with live cells standing).
+_Avoid_: Pixel art, bitmap

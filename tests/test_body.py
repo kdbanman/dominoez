@@ -73,7 +73,7 @@ def test_lattice_rows_are_offset_by_half_a_bump():
     from dominoez.body import floor_depth
 
     s = TEXTURE.spacing
-    row_height = s * np.sqrt(3) / 2
+    row_height = s * np.sqrt(3) / 2 * TEXTURE.row_squash
     tops = ENGRAVING.depth - TEXTURE.amplitude
     assert abs(floor_depth(np.array(s), np.array(0.0)) - tops) < 1e-9  # neighbour in the same row
     assert abs(floor_depth(np.array(s / 2), np.array(row_height)) - tops) < 1e-9  # next row, offset

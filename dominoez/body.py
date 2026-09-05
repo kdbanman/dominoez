@@ -76,9 +76,11 @@ def floor_depth(u: np.ndarray, v: np.ndarray) -> np.ndarray:
     triangular lattice. With wave vectors of length k the lattice spacing is
     (2 / sqrt(3)) * (2 pi / k), so k is chosen from the requested spacing. The
     sum ranges from -1.5 (gaps) to 3 (bump tops); it is rescaled so depth spans
-    exactly mean - amplitude (bump top) to mean + amplitude (gap).
+    exactly mean - amplitude (bump top) to mean + amplitude (gap). Rows are
+    compressed vertically by TEXTURE.row_squash.
     """
     k = 2 * np.pi / (TEXTURE.spacing * np.sqrt(3) / 2)
+    v = v / TEXTURE.row_squash  # squeeze the rows together, stretching bumps sideways
     # Wave vectors at 90, 30 and 150 degrees put the bump rows along u.
     s = (
         np.cos(k * v)

@@ -6,14 +6,21 @@ on:
 
 jobs:
   build:
-    runs-on: ubuntu-latest
+    # Pinned so the apt prusa-slicer version, and therefore the committed gcode, stays stable.
+    runs-on: ubuntu-24.04
     steps:
       - uses: actions/checkout@v4
       - uses: astral-sh/setup-uv@v6
+      - name: install PrusaSlicer
+        run: |
+          sudo apt-get update -qq
+          sudo apt-get install -y -qq prusa-slicer
+          prusa-slicer --help | head -1
       - run: uv sync --locked
       - run: uv run pytest
       - run: uv run dominoez build
+      - run: uv run dominoez slice
       - name: committed outputs match the code
         run: |
-          git add -N stl svg png
-          git diff --exit-code --stat -- stl svg png
+          git add -N stl svg png gcode
+          git diff --exit-code --stat -- stl svg png gcode

@@ -2,6 +2,8 @@
 
 Everything here follows from one fact: a domino prints standing on its foot, on a single-colour printer with a 0.4 mm nozzle. Vocabulary is in `CONTEXT.md`. Why we chose the tools is in `docs/adr/`.
 
+The printer is a Creality CR-10 Smart Pro and the filament is PLA. Both are fixed, so slicing is part of the build: `slicer/profile.ini` holds the PrusaSlicer settings (0.20 mm layers, 3 perimeters, 10% grid infill, a skirt, no supports) and `gcode/` holds the result. Change the profile only by printing the change first, then pasting the config block from that gcode over the file.
+
 ## Body
 
 | Part | Value |
@@ -76,6 +78,6 @@ Cell size comes from dividing the motif box width by the grid width. A creeper a
 1. Write the motif as a Python function returning shapely geometry.
 2. Build renders `svg/<name>.svg` and `png/<name>.png` showing the whole face at true scale: face outline, foot chamfer line, the motif box as a faint dashed rectangle, the motif in black.
 3. The PNG goes into chat for approval.
-4. On approval, build `stl/<name>.stl`. Commit SVG, PNG, and STL together in a PR that closes the motif's sub-issue under #2.
+4. On approval, build `stl/<name>.stl` and slice `gcode/<name>.gcode`. Commit SVG, PNG, STL, and gcode together in a PR that closes the motif's sub-issue under #2.
 
 CI rebuilds everything and fails if any committed output differs from what the code produces.

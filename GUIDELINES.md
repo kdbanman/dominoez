@@ -66,6 +66,7 @@ The check erodes the engraved region by half the minimum channel width and confi
 - Strokes are centerlines buffered by half a width, so width is a parameter. Never draw a stroke as two parallel edges.
 - No detail inside detail. An eye is a dot or nothing.
 - Curves are fine. Sharp inside corners on standing material are fine. Sharp inside corners on the pocket floor round to the nozzle radius anyway.
+- Standing shapes may meet corner to corner (a hole in the cut touching its edge at one point). The build parts the two rings by a hair before extruding the pocket, so the mesh closes and the print is unchanged.
 
 ## Grid motifs
 

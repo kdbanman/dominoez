@@ -9,6 +9,7 @@ import manifold3d
 import numpy as np
 import trimesh
 from shapely.geometry import Polygon
+from shapely.ops import unary_union
 from shapely.geometry.base import BaseGeometry
 
 from .geometry import rounded_rect
@@ -142,6 +143,23 @@ def _floor_solid() -> trimesh.Trimesh:
     return slab
 
 
+def _unpinch(poly: Polygon) -> list[Polygon]:
+    """Part any rings of `poly` that touch at a point.
+
+    A hole touching the exterior, or another hole, at a single point is valid
+    shapely but defeats the triangulation behind the extrusion. Standing cells
+    that meet corner to corner (a field-cut grid motif) do exactly this. Filling
+    a hair-sized disc of the cut at each such point joins the rings through a
+    bridge of standing material far too small for the nozzle to notice.
+    """
+    rings = [poly.exterior, *poly.interiors]
+    touches = [a.intersection(b) for i, a in enumerate(rings) for b in rings[i + 1 :]]
+    touches = [t for t in touches if not t.is_empty]
+    if not touches:
+        return [poly]
+    return _polygons(poly.difference(unary_union(touches).buffer(_CLEAN * 2)))
+
+
 def pockets(engraved: BaseGeometry) -> list[trimesh.Trimesh]:
     """One textured prism per polygon per face, positioned to be subtracted from the body."""
     polys = _polygons(engraved)
@@ -159,14 +177,15 @@ def pockets(engraved: BaseGeometry) -> list[trimesh.Trimesh]:
             )
             # Unions leave near-coincident vertices that break triangulation.
             cleaned = flipped.simplify(_CLEAN, preserve_topology=True)
-            prism = trimesh.creation.extrude_polygon(
-                cleaned, _CUT_OVERSHOOT + ENGRAVING.depth + TEXTURE.amplitude + 0.1
-            )
-            if not prism.is_volume:
-                raise RuntimeError("pocket prism is not a closed volume; the motif polygon is degenerate")
-            prism = trimesh.boolean.intersection([prism, floor], engine="manifold")
-            prism.apply_transform(transform)
-            out.append(prism)
+            for piece in _unpinch(cleaned):
+                prism = trimesh.creation.extrude_polygon(
+                    piece, _CUT_OVERSHOOT + ENGRAVING.depth + TEXTURE.amplitude + 0.1
+                )
+                if not prism.is_volume:
+                    raise RuntimeError("pocket prism is not a closed volume; the motif polygon is degenerate")
+                prism = trimesh.boolean.intersection([prism, floor], engine="manifold")
+                prism.apply_transform(transform)
+                out.append(prism)
     return out
 
 

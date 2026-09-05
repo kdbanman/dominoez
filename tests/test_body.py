@@ -90,3 +90,13 @@ def test_engraving_a_union_with_near_duplicate_vertices():
     assert m.is_watertight
     removed = body().volume - m.volume
     assert abs(removed - 2 * ENGRAVING.depth * shape.area) < 2 * shape.area * TEXTURE.amplitude
+
+
+def test_engraving_a_hole_that_touches_the_exterior_at_a_point():
+    # Two standing squares meeting corner to corner, as in a field-cut grid motif.
+    shape = box(-8, -8, 8, 8).difference(box(-4, -4, 0, 0)).difference(box(0, 0, 8, 4))
+    assert shape.is_valid and len(shape.interiors) == 1
+    m = engrave(shape)
+    assert m.is_watertight
+    removed = body().volume - m.volume
+    assert abs(removed - 2 * ENGRAVING.depth * shape.area) < 2 * shape.area * TEXTURE.amplitude

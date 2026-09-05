@@ -1,0 +1,7 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="44" height="80" viewBox="0 0 44 80">
+<rect width="44" height="80" fill="#fff"/>
+<rect x="4" y="4" width="36" height="72" rx="2.5" fill="#f4f4f4" stroke="#888" stroke-width="0.3"/>
+<line x1="4" y1="75.5" x2="40" y2="75.5" stroke="#bbb" stroke-width="0.2"/>
+<rect x="8" y="8" width="28" height="64" fill="none" stroke="#c44" stroke-width="0.2" stroke-dasharray="1 1"/>
+<path d="M8 54L8 26L36 26L36 54L29 54L29 50.5L29 47L29 43.5L25.5 43.5L25.5 40L22 40L18.5 40L18.5 43.5L15 43.5L15 47L15 50.5L15 54ZM29 40L32.5 40L32.5 36.5L32.5 33L29 33L25.5 33L25.5 36.5L25.5 40ZM18.5 36.5L18.5 33L15 33L11.5 33L11.5 36.5L11.5 40L15 40L18.5 40ZM18.5 54L18.5 50.5L22 50.5L25.5 50.5L25.5 54Z" fill="#000" fill-rule="evenodd"/>
+</svg>

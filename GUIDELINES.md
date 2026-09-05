@@ -39,9 +39,9 @@ The margin must exceed the 2.5 mm edge radius. Anything closer sits on the curve
 
 1.5 mm deep on average, straight walls, identical motif on both faces. Each face's copy is oriented so a viewer standing in front of that face reads it correctly.
 
-Every pocket floor carries the same texture: a weave, cos(u) + cos(v), scaled to plus or minus 0.33 mm around the 1.5 mm mean with a 3 mm wavelength, centred on the face. So the floor runs 1.17 to 1.83 mm deep and the solid core is never thinner than 8.3 mm. The texture is there so a recess catches light differently from the flat face on a single-colour print. It applies to every motif with no switch, including the field of a field-cut grid motif.
+Every pocket floor carries the same texture: a hexagonal lattice of smooth bumps, like a layer of close-packed spheres. Bumps sit 3 mm apart along a row, and each row is offset half a bump from the next. Bump tops are the shallowest points at 1.17 mm, the gaps between three bumps are the deepest at 1.83 mm, so the relief is plus or minus 0.33 mm about 1.5 mm and the solid core is never thinner than 8.3 mm. The lattice is centred on the face with a bump top at the centre. The texture is there so a recess catches light differently from the flat face on a single-colour print. It applies to every motif with no switch, including the field of a field-cut grid motif.
 
-On the vertical floor the weave's slope is about 35 degrees from vertical at steepest, which prints as a smooth wall. Wavelengths under about 2 mm would turn to noise against a 0.4 mm nozzle.
+The relief is three cosines with wave vectors 60 degrees apart, so bumps are round and the transitions are smooth. On the vertical floor the steepest slope is about 40 degrees from vertical, which prints as a smooth wall. Spacings under about 2 mm would turn to noise against a 0.4 mm nozzle.
 
 ## Printability rules
 

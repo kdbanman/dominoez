@@ -70,24 +70,38 @@ def _polygons(geom: BaseGeometry) -> list[Polygon]:
 
 
 def floor_depth(u: np.ndarray, v: np.ndarray) -> np.ndarray:
-    """Engraving depth at each (u, v): the mean depth plus the weave relief."""
-    k = 2 * np.pi / TEXTURE.wavelength
-    return ENGRAVING.depth + TEXTURE.amplitude / 2 * (np.cos(k * u) + np.cos(k * v))
+    """Engraving depth at each (u, v): shallowest on the bumps, deepest in the gaps.
+
+    The sum of three cosines whose wave vectors are 60 degrees apart peaks on a
+    triangular lattice. With wave vectors of length k the lattice spacing is
+    (2 / sqrt(3)) * (2 pi / k), so k is chosen from the requested spacing. The
+    sum ranges from -1.5 (gaps) to 3 (bump tops); it is rescaled so depth spans
+    exactly mean - amplitude (bump top) to mean + amplitude (gap).
+    """
+    k = 2 * np.pi / (TEXTURE.spacing * np.sqrt(3) / 2)
+    # Wave vectors at 90, 30 and 150 degrees put the bump rows along u.
+    s = (
+        np.cos(k * v)
+        + np.cos(k * (u * np.sqrt(3) / 2 + v / 2))
+        + np.cos(k * (u * np.sqrt(3) / 2 - v / 2))
+    )
+    relief = (s + 1.5) / 4.5  # 0 in the gaps, 1 on the bump tops
+    return ENGRAVING.depth + TEXTURE.amplitude - 2 * TEXTURE.amplitude * relief
 
 
 def _floor_solid() -> trimesh.Trimesh:
     """A slab, in the extrusion frame, whose top surface is the textured pocket floor.
 
     Intersecting a pocket prism with this slab gives the prism a wavy floor while
-    leaving its walls straight. The weave is even in u and v, so the same slab
-    serves both faces despite the u flip.
+    leaving its walls straight. The lattice is symmetric under u -> -u and
+    v -> -v, so the same slab serves both faces despite the u flip.
     """
     w, h = motif_box_size()
     pad = TEXTURE.step * 2
     xs = np.arange(-w / 2 - pad, w / 2 + pad + TEXTURE.step / 2, TEXTURE.step)
     ys = np.arange(-h / 2 - pad, h / 2 + pad + TEXTURE.step / 2, TEXTURE.step)
     gx, gy = np.meshgrid(xs, ys, indexing="ij")
-    # The extrusion frame is (u, -v, depth): the slab's y is -v, and cos is even.
+    # The extrusion frame is (u, -v, depth): the slab's y is -v; the lattice is even in v.
     top = _CUT_OVERSHOOT + floor_depth(gx, -gy)
     bottom = np.full_like(top, -1.0)
     nx, ny = gx.shape

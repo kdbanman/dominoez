@@ -49,16 +49,36 @@ def test_engraving_removes_the_expected_volume():
     assert abs(removed - 2 * 100 * ENGRAVING.depth) < 2 * 100 * TEXTURE.amplitude / 2
 
 
-def test_pocket_floor_carries_the_weave():
-    # cos u + cos v peaks at the origin (deepest) and troughs at half a wavelength (shallowest).
+def test_pocket_floor_carries_the_bump_lattice():
+    from dominoez.body import floor_depth
+
+    # The origin is a bump top (shallowest). Find the deepest point numerically.
+    us = np.linspace(-6, 6, 241)
+    gu, gv = np.meshgrid(us, us, indexing="ij")
+    d = floor_depth(gu, gv)
+    assert abs(d[120, 120] - (ENGRAVING.depth - TEXTURE.amplitude)) < 1e-9
+    i, j = np.unravel_index(np.argmax(d), d.shape)
+    assert abs(d[i, j] - (ENGRAVING.depth + TEXTURE.amplitude)) < 1e-3
+
     m = engrave(box(-6, -6, 6, 6))
-    half = TEXTURE.wavelength / 2
     y_face = -BODY.thickness / 2
     z0 = BODY.height / 2
-    deep_probe = [0, y_face + ENGRAVING.depth + TEXTURE.amplitude * 0.6, z0]
-    shallow_probe = [half, y_face + ENGRAVING.depth - TEXTURE.amplitude * 0.6, z0 + half]
-    inside = m.contains(np.array([deep_probe, shallow_probe]))
-    assert list(inside) == [False, True]
+    shallow_probe = [0, y_face + ENGRAVING.depth - TEXTURE.amplitude * 0.6, z0]
+    deep_probe = [gu[i, j], y_face + ENGRAVING.depth + TEXTURE.amplitude * 0.6, z0 + gv[i, j]]
+    inside = m.contains(np.array([shallow_probe, deep_probe]))
+    assert list(inside) == [True, False]
+
+
+def test_lattice_rows_are_offset_by_half_a_bump():
+    from dominoez.body import floor_depth
+
+    s = TEXTURE.spacing
+    row_height = s * np.sqrt(3) / 2
+    tops = ENGRAVING.depth - TEXTURE.amplitude
+    assert abs(floor_depth(np.array(s), np.array(0.0)) - tops) < 1e-9  # neighbour in the same row
+    assert abs(floor_depth(np.array(s / 2), np.array(row_height)) - tops) < 1e-9  # next row, offset
+    assert floor_depth(np.array(0.0), np.array(row_height)) > tops + TEXTURE.amplitude  # not directly above
+
 
 
 def test_engraving_a_union_with_near_duplicate_vertices():

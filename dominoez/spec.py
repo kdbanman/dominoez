@@ -21,14 +21,15 @@ class Engraving:
 
 @dataclass(frozen=True)
 class Texture:
-    """Relief on every pocket floor: a weave, (cos u + cos v) scaled to +/- amplitude.
+    """Relief on every pocket floor: a hexagonal lattice of smooth bumps, like a
+    layer of close-packed spheres. Three cosines at 60 degrees to each other.
 
-    Depth varies around Engraving.depth by +/- amplitude. The floor is sampled
-    on a grid of `step` mm; wavelength / step samples per period.
+    Bumps (shallowest points) sit `spacing` mm apart. Depth spans
+    Engraving.depth +/- amplitude. The floor is sampled on a grid of `step` mm.
     """
 
     amplitude: float = 0.33
-    wavelength: float = 3.0
+    spacing: float = 3.0
     step: float = 0.3
 
 

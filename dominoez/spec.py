@@ -20,6 +20,19 @@ class Engraving:
 
 
 @dataclass(frozen=True)
+class Texture:
+    """Relief on every pocket floor: a weave, (cos u + cos v) scaled to +/- amplitude.
+
+    Depth varies around Engraving.depth by +/- amplitude. The floor is sampled
+    on a grid of `step` mm; wavelength / step samples per period.
+    """
+
+    amplitude: float = 0.33
+    wavelength: float = 3.0
+    step: float = 0.3
+
+
+@dataclass(frozen=True)
 class Limits:
     """Printability minimums for a 0.4 mm nozzle. The build fails when a motif breaks one."""
 
@@ -31,6 +44,7 @@ class Limits:
 
 BODY = Body()
 ENGRAVING = Engraving()
+TEXTURE = Texture()
 LIMITS = Limits()
 
 

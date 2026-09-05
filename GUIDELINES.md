@@ -37,7 +37,11 @@ The margin must exceed the 2.5 mm edge radius. Anything closer sits on the curve
 
 ## Engraving
 
-1.5 mm deep, straight walls, identical motif on both faces. Each face's copy is oriented so a viewer standing in front of that face reads it correctly. Cutting 1.5 mm from each face leaves a 9 mm solid core.
+1.5 mm deep on average, straight walls, identical motif on both faces. Each face's copy is oriented so a viewer standing in front of that face reads it correctly.
+
+Every pocket floor carries the same texture: a weave, cos(u) + cos(v), scaled to plus or minus 0.33 mm around the 1.5 mm mean with a 3 mm wavelength, centred on the face. So the floor runs 1.17 to 1.83 mm deep and the solid core is never thinner than 8.3 mm. The texture is there so a recess catches light differently from the flat face on a single-colour print. It applies to every motif with no switch, including the field of a field-cut grid motif.
+
+On the vertical floor the weave's slope is about 35 degrees from vertical at steepest, which prints as a smooth wall. Wavelengths under about 2 mm would turn to noise against a 0.4 mm nozzle.
 
 ## Printability rules
 

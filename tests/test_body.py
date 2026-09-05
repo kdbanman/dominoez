@@ -2,7 +2,7 @@ import numpy as np
 from shapely.geometry import box
 
 from dominoez.body import body, engrave
-from dominoez.spec import BODY, ENGRAVING
+from dominoez.spec import BODY, ENGRAVING, TEXTURE
 
 
 def test_body_is_a_watertight_convex_slab():
@@ -43,7 +43,22 @@ def test_engraving_is_mirrored_so_each_face_reads_correctly():
 def test_engraving_removes_the_expected_volume():
     square = box(-5, -5, 5, 5)
     removed = body().volume - engrave(square).volume
-    assert abs(removed - 2 * 100 * ENGRAVING.depth) < 1.0
+    shallow = 2 * 100 * (ENGRAVING.depth - TEXTURE.amplitude)
+    deep = 2 * 100 * (ENGRAVING.depth + TEXTURE.amplitude)
+    assert shallow < removed < deep
+    assert abs(removed - 2 * 100 * ENGRAVING.depth) < 2 * 100 * TEXTURE.amplitude / 2
+
+
+def test_pocket_floor_carries_the_weave():
+    # cos u + cos v peaks at the origin (deepest) and troughs at half a wavelength (shallowest).
+    m = engrave(box(-6, -6, 6, 6))
+    half = TEXTURE.wavelength / 2
+    y_face = -BODY.thickness / 2
+    z0 = BODY.height / 2
+    deep_probe = [0, y_face + ENGRAVING.depth + TEXTURE.amplitude * 0.6, z0]
+    shallow_probe = [half, y_face + ENGRAVING.depth - TEXTURE.amplitude * 0.6, z0 + half]
+    inside = m.contains(np.array([deep_probe, shallow_probe]))
+    assert list(inside) == [False, True]
 
 
 def test_engraving_a_union_with_near_duplicate_vertices():
@@ -54,4 +69,4 @@ def test_engraving_a_union_with_near_duplicate_vertices():
     m = engrave(shape)
     assert m.is_watertight
     removed = body().volume - m.volume
-    assert abs(removed - 2 * ENGRAVING.depth * shape.area) < 2.0
+    assert abs(removed - 2 * ENGRAVING.depth * shape.area) < 2 * shape.area * TEXTURE.amplitude

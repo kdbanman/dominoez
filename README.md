@@ -1,6 +1,6 @@
 # dominoez
 
-3D-printable toppling dominoes, each with a picture engraved on both faces. The gcode in `gcode/` is sliced for one printer and filament (Creality CR-10 Smart Pro, 0.4 mm nozzle, PLA); the STLs in `stl/` are for anyone else, foot down.
+3D-printable toppling dominoes, each with a picture engraved on both faces. They are sliced for one printer and filament (Creality CR-10 Smart Pro, 0.4 mm nozzle, PLA): the blank's gcode is committed in `gcode/`, every motif's gcode is the `gcode` artifact on the latest CI run. The STLs in `stl/` are for anyone else, foot down.
 
 - `CONTEXT.md`: vocabulary.
 - `GUIDELINES.md`: dimensions, print limits, how to draw a motif.
@@ -22,11 +22,11 @@ uv run dominoez slice           # STL to gcode, needs prusa-slicer on the path
 
 Slicing uses `slicer/profile.ini`, a PrusaSlicer profile lifted from a print that came out well. Install PrusaSlicer (`apt install prusa-slicer` on Ubuntu) or set `PRUSA_SLICER` to the binary. `build` does not need it.
 
-A motif that breaks a printability rule fails the build with the rule and where it broke. CI rebuilds and reslices everything and fails if the committed `stl/`, `svg/`, `png/`, or `gcode/` differ from what the code produces.
+A motif that breaks a printability rule fails the build with the rule and where it broke. CI rebuilds and reslices everything, fails if the committed `stl/`, `svg/`, `png/`, or `gcode/blank.gcode` differ from what the code produces, and uploads all the gcode as an artifact named `gcode`.
 
 ## Adding a motif
 
 1. Add `dominoez/motifs/<name>.py` exposing `motif = Motif(name=..., issue=..., draw=...)`. `draw` returns shapely geometry in motif coordinates: u right, v up, origin at face centre, millimetres. Helpers are in `dominoez/geometry.py`.
 2. Register it in `dominoez/motifs/__init__.py`.
 3. `uv run dominoez render <name>` and get the PNG approved.
-4. `uv run dominoez build <name>` and `uv run dominoez slice <name>`, commit SVG, PNG, STL, and gcode together.
+4. `uv run dominoez build <name>`, commit SVG, PNG, and STL together. CI slices it; download the gcode from the run's `gcode` artifact.

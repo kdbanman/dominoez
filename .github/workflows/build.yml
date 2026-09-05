@@ -24,3 +24,9 @@ jobs:
         run: |
           git add -N stl svg png gcode
           git diff --exit-code --stat -- stl svg png gcode
+      - name: gcode for every motif
+        uses: actions/upload-artifact@v4
+        with:
+          name: gcode
+          path: gcode/*.gcode
+          if-no-files-found: error

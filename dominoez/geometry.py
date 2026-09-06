@@ -4,16 +4,31 @@ Motif coordinates: u runs horizontally (positive to the viewer's right), v runs
 vertically (positive up), origin at the centre of the face. Units are mm.
 """
 
+from shapely import affinity
 from shapely.geometry import LineString, Point, Polygon, box
 from shapely.geometry.base import BaseGeometry
 from shapely.ops import unary_union
 
-from .spec import LIMITS, motif_box_size
+from .spec import BODY, ENGRAVING, LIMITS, motif_box_size
 
 
 def motif_box() -> Polygon:
     w, h = motif_box_size()
     return box(-w / 2, -h / 2, w / 2, h / 2)
+
+
+def place(drawn: BaseGeometry) -> BaseGeometry:
+    """Put a drawn motif where it goes on the face: centred across, hung from the top.
+
+    Motifs are drawn centred on the origin. On the face they sit high, with the
+    top of the motif ENGRAVING.crown_gap below the crown. A blank stays empty.
+    """
+    if drawn.is_empty:
+        return drawn
+    assert ENGRAVING.crown_gap >= ENGRAVING.margin, "the motif would cross the motif box"
+    minx, miny, maxx, maxy = drawn.bounds
+    top = BODY.height / 2 - ENGRAVING.crown_gap
+    return affinity.translate(drawn, xoff=-(minx + maxx) / 2, yoff=top - maxy)
 
 
 def stroke(points: list[tuple[float, float]], width: float, cap: str = "round") -> Polygon:

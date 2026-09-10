@@ -19,8 +19,8 @@ SWIRLS = [
 ]
 # Debris around the foot, each a wall's width or more clear of the funnel:
 # dots as (u, v, diameter) and one tumbling plank as (u, v, length, thickness, degrees).
-DEBRIS_DOTS = [(-7.0, -10.5, 2.0), (6.0, -8.5, 1.8), (2.5, -14.5, 2.0), (7.5, -12.5, 1.6)]
-PLANK = (-3.5, -15.2, 3.4, 1.6, 25.0)
+DEBRIS_DOTS = [(-9.0, -12.0, 2.0), (8.0, -9.0, 1.8), (3.5, -16.5, 2.0), (9.0, -13.5, 1.6)]
+PLANK = (-5.5, -17.5, 3.4, 1.6, 25.0)
 SAG = 1.0  # how far the middle of the widest swirl dips below its ends, scaled by length
 
 

@@ -18,17 +18,17 @@ def motif_box() -> Polygon:
 
 
 def place(drawn: BaseGeometry) -> BaseGeometry:
-    """Put a drawn motif where it goes on the face: centred across, hung from the top.
+    """Put a drawn motif where it goes on the face: its centre of mass in the middle of the top half.
 
-    Motifs are drawn centred on the origin. On the face they sit high, with the
-    top of the motif ENGRAVING.crown_gap below the crown. A blank stays empty.
+    Motifs are drawn centred on the origin. On the face the centroid of the
+    engraved region sits on the vertical centreline at ENGRAVING.centre_of_mass,
+    so the picture reads as balanced and the material removed is balanced
+    across the domino. A blank stays empty.
     """
     if drawn.is_empty:
         return drawn
-    assert ENGRAVING.crown_gap >= ENGRAVING.margin, "the motif would cross the motif box"
-    minx, miny, maxx, maxy = drawn.bounds
-    top = BODY.height / 2 - ENGRAVING.crown_gap
-    return affinity.translate(drawn, xoff=-(minx + maxx) / 2, yoff=top - maxy)
+    cx, cy = drawn.centroid.coords[0]
+    return affinity.translate(drawn, xoff=-cx, yoff=ENGRAVING.centre_of_mass - cy)
 
 
 def stroke(points: list[tuple[float, float]], width: float, cap: str = "round") -> Polygon:
@@ -53,12 +53,12 @@ def rounded_rect(width: float, height: float, radius: float) -> Polygon:
     return inner.buffer(radius)
 
 
-def grid(rows: list[str], style: str, live: str = "X") -> BaseGeometry:
+def grid(rows: list[str], style: str, live: str = "X", pitch: float | None = None) -> BaseGeometry:
     """A grid motif. See GUIDELINES.md, "Grid motifs".
 
     `rows` are strings of equal length, top row first; a `live` character is a
     live cell, anything else is dead. Cell pitch is the motif box width divided
-    by the grid width, and the grid is centred on the face.
+    by the grid width unless `pitch` is given, and the grid is centred on the origin.
 
     style "cut": each live cell is an engraved square, one wall width smaller
     than its pitch, so adjacent live cells are separated by a minimum wall.
@@ -72,7 +72,8 @@ def grid(rows: list[str], style: str, live: str = "X") -> BaseGeometry:
     n_cols = len(rows[0])
     if n_rows == 0 or any(len(r) != n_cols for r in rows):
         raise ValueError("grid rows must be non-empty and all the same length")
-    pitch = motif_box_size()[0] / n_cols
+    if pitch is None:
+        pitch = motif_box_size()[0] / n_cols
     width, height = pitch * n_cols, pitch * n_rows
 
     def cell(r: int, c: int, inset: float) -> Polygon:

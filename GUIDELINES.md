@@ -41,10 +41,10 @@ The margin must exceed the 2.5 mm edge radius. Anything closer sits on the curve
 
 | Part | Value |
 | --- | --- |
-| Across | centered |
-| Crown gap (crown to the top of the motif) | 6 mm |
+| Across | centre of mass on the vertical centreline |
+| Up | centre of mass 18 mm above the face centre, the middle of the top half |
 
-Motifs sit high on the face, hung from a line 6 mm below the crown, so a row of standing dominoes reads as a row of pictures at eye level. A motif is drawn centred on the origin and the build moves it into place, so the placement can change without touching any motif. The crown gap must be at least the margin or the motif crosses the motif box.
+A motif is drawn centred on the origin and the build moves it so the centroid of the engraved region lands on that point. Motifs sit in the top half so a row of standing dominoes reads as a row of pictures at eye level. Placing by centre of mass rather than by bounding box keeps a lopsided picture looking balanced, and keeps the material removed balanced about the centreline, which matters if the dominoes ever twist. The build fails if the placed motif leaves the motif box, so a motif can reach at most 14 mm above its centroid; a tall motif has to be drawn smaller, not placed lower.
 
 ## Engraving
 
@@ -85,7 +85,7 @@ Two styles, chosen per motif.
 
 **Field cut, live cells standing.** The whole bounding grid is engraved and live cells stay at face level. Adjacent live cells merge into one island. Used for the Minecraft creeper face, where the eyes and mouth are the picture and the field is background.
 
-Cell size comes from dividing the motif box width by the grid width. A creeper at 8 cells across gives 3.5 mm cells, above the island minimum.
+Cell size comes from dividing the motif box width by the grid width, unless the motif gives its own pitch. A creeper at 8 cells across gives 3.5 mm cells, above the island minimum. The Life patterns are lopsided within their 3x3 box, so at the full 9.3 mm pitch they would leave the motif box once placed by centre of mass; both use 7 mm cells instead.
 
 ## Review flow
 

@@ -9,12 +9,12 @@ from shapely.geometry import Point
 from ..geometry import stroke, union
 from ..motif import Motif
 
-RADIUS = 20.0  # of the arc the banana follows
+RADIUS = 16.0  # of the arc the banana follows
 SWEEP = 100.0  # degrees of arc
-WIDTH = 8.0  # at the fattest point
+WIDTH = 10.0  # at the fattest point
 END_WIDTH = 2.6  # at the tapered ends, above the channel minimum
-STEM = 4.0  # length of the stem past the end of the body
-TILT = -45.0  # degrees; hang the banana across the face
+STEM = 2.5  # length of the stem past the end of the body
+TILT = -40.0  # degrees; hang the banana across the face
 
 
 def _arc(t: float) -> tuple[float, float]:

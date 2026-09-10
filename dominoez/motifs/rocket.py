@@ -6,14 +6,14 @@ from shapely.geometry import Point, Polygon, box
 from ..geometry import dot, union
 from ..motif import Motif
 
-BODY_W = 13.0
-BODY_H = 30.0  # of the straight-sided part, before the nose
-NOSE_H = 11.0
-FIN_W = 5.5  # how far each fin sticks out past the body
-FIN_H = 12.0  # from the fin's lowest point up to where it leaves the body
+BODY_W = 12.0
+BODY_H = 14.0  # of the straight-sided part, before the nose
+NOSE_H = 7.0
+FIN_W = 5.0  # how far each fin sticks out past the body
+FIN_H = 9.0  # from the fin's lowest point up to where it leaves the body
 FIN_DROP = 2.0  # how far the fins hang below the body
-WINDOW_D = 5.5
-FLAME_W, FLAME_H = 7.0, 9.0
+WINDOW_D = 5.0
+FLAME_W, FLAME_H = 6.5, 6.0
 GAP = 1.6  # standing material between the body and the flame, above the wall minimum
 ROUND = 0.9  # radius of every blunt tip, above half the channel minimum
 
@@ -39,7 +39,7 @@ def draw():
     fin_l = Polygon([(-u, v) for u, v in fin_r.exterior.coords])
     rocket = union(body, nose, _blunt(fin_l), _blunt(fin_r))
     # Porthole: a standing disc in the upper body.
-    rocket = rocket.difference(dot(0, top - 6.5, WINDOW_D))
+    rocket = rocket.difference(dot(0, top - 4.5, WINDOW_D))
     # Flame: a blunt teardrop hanging under the body, parted from it by a wall.
     fy = fin_bottom - GAP
     flame = _blunt(Polygon([(-FLAME_W / 2, fy), (FLAME_W / 2, fy), (0, fy - FLAME_H)]))

@@ -1,5 +1,9 @@
-"""A bicycle seen from the side, facing right. Two ringed wheels with axle
-dots, a diamond frame in fat strokes, a saddle and a handlebar."""
+"""A road bike seen from the side, facing right. Two ringed wheels with axle
+dots, a diamond frame in fat strokes, a saddle and a drop handlebar.
+
+Proportions follow a real 56 cm road bike scaled to the motif box width:
+wheelbase 2.9 wheel radii, saddle and bars about 1.8 radii above the
+axles, bottom bracket a little below them."""
 
 from shapely.geometry import Polygon
 
@@ -11,18 +15,20 @@ RIM_W = 2.0  # the cut ring that is the tyre
 HUB_D = 2.0  # cut dot at each axle
 REAR = (-8.2, -4.5)
 FRONT = (8.2, -4.5)
-BOTTOM_BRACKET = (0.0, -4.0)
-SEAT = (-4.2, 5.0)  # top of the seat tube
-HEAD_TOP = (5.0, 5.2)  # where the top tube meets the head tube
-HEAD_BOTTOM = (6.3, 1.5)  # where the down tube meets the head tube
-STEM_TOP = (4.1, 8.8)
-BAR = [(4.1, 8.8), (7.5, 8.7), (8.8, 7.2)]
-SADDLE = [(-7.0, 8.8), (-2.8, 8.8)]
+BOTTOM_BRACKET = (-1.5, -5.7)
+SEAT = (-4.2, 3.2)  # top of the seat tube
+HEAD_TOP = (5.0, 3.5)  # where the top tube meets the head tube
+HEAD_BOTTOM = (5.8, 1.1)  # where the down tube meets the head tube
+STEM_TOP = (4.3, 6.4)
+BAR = [(4.3, 6.4), (7.6, 6.5), (8.8, 5.3), (8.4, 3.6)]  # a drop bar, hooking down
+SADDLE = [(-7.0, 6.4), (-3.2, 6.4)]
+SEAT_POST_TOP = (-4.8, 6.4)
 TUBE_W = 1.6
 BAR_W = 1.6
-SADDLE_W = 2.2
+SADDLE_W = 1.8
 DROPOUT = 4.0  # length of the solid wedge where the stays meet the rear hub
-CLOSE = 0.8  # rounds standing tips past half the island minimum, below half any gap
+CLOSE_ISLANDS = 0.8  # rounds standing tips inside the wheels and frame past half the island minimum
+CLOSE_WALLS = 0.6  # rounds the tips under the saddle and bar without filling the gap above the top tube
 
 
 def _wheel(centre):
@@ -35,6 +41,10 @@ def _toward(a, b, length):
     return (a[0] + du * length / n, a[1] + dv * length / n)
 
 
+def _close(geom, r):
+    return geom.buffer(r, 16).buffer(-r, 16)
+
+
 def draw():
     tubes = [
         [BOTTOM_BRACKET, SEAT],
@@ -44,18 +54,11 @@ def draw():
         [HEAD_BOTTOM, FRONT],
         [BOTTOM_BRACKET, REAR],
         [SEAT, REAR],
-        [SEAT, (-4.8, 8.8)],
+        [SEAT, SEAT_POST_TOP],
     ]
     dropout = Polygon([REAR, _toward(REAR, BOTTOM_BRACKET, DROPOUT), _toward(REAR, SEAT, DROPOUT)])
-    bike = union(
-        _wheel(REAR),
-        _wheel(FRONT),
-        dropout,
-        *(stroke(t, TUBE_W) for t in tubes),
-        stroke(BAR, BAR_W),
-        stroke(SADDLE, SADDLE_W),
-    )
-    bike = bike.buffer(CLOSE, 16).buffer(-CLOSE, 16)
+    core = _close(union(_wheel(REAR), _wheel(FRONT), dropout, *(stroke(t, TUBE_W) for t in tubes)), CLOSE_ISLANDS)
+    bike = _close(union(core, stroke(BAR, BAR_W), stroke(SADDLE, SADDLE_W)), CLOSE_WALLS)
     return union(bike, dot(*REAR, HUB_D), dot(*FRONT, HUB_D))
 
 

@@ -6,12 +6,12 @@ from shapely.geometry import Polygon
 from ..geometry import dot, stroke, union
 from ..motif import Motif
 
-WHEEL_R = 4.6  # outer radius of each wheel
+WHEEL_R = 5.4  # outer radius of each wheel
 RIM_W = 2.0  # the cut ring that is the tyre
 HUB_D = 2.0  # cut dot at each axle
-REAR = (-8.4, -3.5)
-FRONT = (8.4, -3.5)
-BOTTOM_BRACKET = (0.0, -4.8)
+REAR = (-8.2, -4.5)
+FRONT = (8.2, -4.5)
+BOTTOM_BRACKET = (0.0, -4.0)
 SEAT = (-4.2, 5.0)  # top of the seat tube
 HEAD_TOP = (5.0, 5.2)  # where the top tube meets the head tube
 HEAD_BOTTOM = (6.3, 1.5)  # where the down tube meets the head tube

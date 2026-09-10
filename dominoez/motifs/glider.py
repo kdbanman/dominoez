@@ -4,10 +4,12 @@ empty field. This is the phase that points down and to the right."""
 from ..geometry import grid
 from ..motif import Motif
 
+PITCH = 7.0  # mm per cell, shared by the Life motifs; see GUIDELINES.md, "Grid motifs"
+
 ROWS = [
     ".X.",
     "..X",
     "XXX",
 ]
 
-motif = Motif(name="glider", issue=20, draw=lambda: grid(ROWS, "cut"))
+motif = Motif(name="glider", issue=20, draw=lambda: grid(ROWS, "cut", pitch=PITCH))

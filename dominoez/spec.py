@@ -17,7 +17,7 @@ class Body:
 class Engraving:
     depth: float = 1.5
     margin: float = 4.0  # from every face edge to the motif box
-    crown_gap: float = 6.0  # from the crown to the top of the motif; must be at least the margin
+    centre_of_mass: float = 18.0  # v of the motif's centre of mass: the middle of the top half of the face
 
 
 @dataclass(frozen=True)

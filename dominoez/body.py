@@ -196,6 +196,25 @@ def engrave(engraved: BaseGeometry) -> trimesh.Trimesh:
     if not cutters:
         return solid
     result = trimesh.boolean.difference([solid, *cutters], engine="manifold")
+    _settle(result)
     if not result.is_watertight:
         raise RuntimeError("engraved mesh is not watertight")
     return result
+
+
+def _settle(mesh: trimesh.Trimesh) -> None:
+    """Make the mesh survive the STL round trip.
+
+    STL stores float32. Vertices the boolean leaves a hair apart in float64 can
+    land on the same float32 point, and a reader that merges them is left with
+    triangles that name one vertex twice: doubled edges, and a mesh that is no
+    longer watertight. Rounding here first, merging the exact duplicates, and
+    dropping those collapsed triangles means what is checked is what is written.
+    Only index-repeating faces go; a zero-area face with three distinct vertices
+    still closes its edges and removing it would open a T-junction.
+    """
+    mesh.vertices = mesh.vertices.astype(np.float32).astype(np.float64)
+    mesh.merge_vertices()
+    f = mesh.faces
+    mesh.update_faces((f[:, 0] != f[:, 1]) & (f[:, 1] != f[:, 2]) & (f[:, 0] != f[:, 2]))
+    mesh.remove_unreferenced_vertices()

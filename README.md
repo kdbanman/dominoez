@@ -26,7 +26,7 @@ A motif that breaks a printability rule fails the build with the rule and where 
 
 ## Adding a motif
 
-1. Add `dominoez/motifs/<name>.py` exposing `motif = Motif(name=..., issue=..., draw=...)`. `draw` returns shapely geometry in motif coordinates: u right, v up, origin at face centre, millimetres. Helpers are in `dominoez/geometry.py`.
+1. Add `dominoez/motifs/<name>.py` exposing `motif = Motif(name=..., issue=..., draw=...)`. `draw` returns shapely geometry in motif coordinates: u right, v up, millimetres, drawn centred on the origin. The build centres it across the face and hangs it from the top (see `GUIDELINES.md`, "Motif placement"). Helpers are in `dominoez/geometry.py`.
 2. Register it in `dominoez/motifs/__init__.py`.
 3. `uv run dominoez render <name>` and get the PNG approved.
 4. `uv run dominoez build <name>`, commit SVG, PNG, and STL together. CI slices it; download the run's `<name>.gcode` artifact.

@@ -8,8 +8,9 @@ from shapely.geometry.base import BaseGeometry
 class Motif:
     """A picture cut into both faces of a domino.
 
-    `draw` returns the engraved region in motif coordinates (see geometry.py).
-    Return an empty geometry for a blank.
+    `draw` returns the engraved region in motif coordinates (see geometry.py),
+    drawn centred on the origin. `geometry` places it on the face. Return an
+    empty geometry for a blank.
     """
 
     name: str
@@ -17,4 +18,6 @@ class Motif:
     draw: Callable[[], BaseGeometry]
 
     def geometry(self) -> BaseGeometry:
-        return self.draw()
+        from .geometry import place
+
+        return place(self.draw())

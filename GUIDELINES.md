@@ -37,6 +37,15 @@ Foot on the bed, faces vertical. Consequences:
 
 The margin must exceed the 2.5 mm edge radius. Anything closer sits on the curve and the pocket floor breaks through the round.
 
+## Motif placement
+
+| Part | Value |
+| --- | --- |
+| Across | centered |
+| Crown gap (crown to the top of the motif) | 6 mm |
+
+Motifs sit high on the face, hung from a line 6 mm below the crown, so a row of standing dominoes reads as a row of pictures at eye level. A motif is drawn centred on the origin and the build moves it into place, so the placement can change without touching any motif. The crown gap must be at least the margin or the motif crosses the motif box.
+
 ## Engraving
 
 1.5 mm deep on average, straight walls, identical motif on both faces. Each face's copy is oriented so a viewer standing in front of that face reads it correctly.
@@ -66,6 +75,7 @@ The check erodes the engraved region by half the minimum channel width and confi
 - Strokes are centerlines buffered by half a width, so width is a parameter. Never draw a stroke as two parallel edges.
 - No detail inside detail. An eye is a dot or nothing.
 - Curves are fine. Sharp inside corners on standing material are fine. Sharp inside corners on the pocket floor round to the nozzle radius anyway.
+- Standing shapes may meet corner to corner (a hole in the cut touching its edge at one point). The build parts the two rings by a hair before extruding the pocket, so the mesh closes and the print is unchanged.
 
 ## Grid motifs
 

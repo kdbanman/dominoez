@@ -1,0 +1,2 @@
+# Temporary: one-off plate of the five new motifs, removed in the next commit.
+truck speaker gamepad kiwi letter_i

@@ -1,7 +1,24 @@
 """Registry of every motif. Add a module and list it here."""
 
 from ..motif import Motif
-from . import banana, bicycle, blank, creeper, duck, glider, heart, letter_g, r_pentomino, rocket, tornado, toucan
+from . import (
+    banana,
+    bicycle,
+    blank,
+    cat_face,
+    creeper,
+    dog_face,
+    duck,
+    glider,
+    heart,
+    letter_g,
+    r_pentomino,
+    rocket,
+    toilet,
+    tornado,
+    toucan,
+    train,
+)
 
 _ALL: list[Motif] = [
     blank.motif,
@@ -16,6 +33,10 @@ _ALL: list[Motif] = [
     toucan.motif,
     tornado.motif,
     bicycle.motif,
+    toilet.motif,
+    cat_face.motif,
+    dog_face.motif,
+    train.motif,
 ]
 
 MOTIFS: dict[str, Motif] = {m.name: m for m in _ALL}

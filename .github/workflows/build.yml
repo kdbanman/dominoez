@@ -22,6 +22,7 @@ jobs:
       - run: uv run pytest
       - run: uv run dominoez build
       - run: uv run dominoez slice
+      - run: uv run dominoez plate --name all
       - name: committed outputs match the code
         run: |
           git add -N stl svg png gcode
@@ -33,6 +34,12 @@ jobs:
         with:
           name: gcode-all
           path: gcode/*.gcode
+          if-no-files-found: error
+      - name: one of every motif on one bed
+        uses: actions/upload-artifact@v4
+        with:
+          name: plate-all.gcode
+          path: plate/all.gcode
           if-no-files-found: error
 
   gcode:

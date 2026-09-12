@@ -43,6 +43,10 @@ _Avoid_: Safe area, canvas, bounds
 A motif defined as a grid of cells that are either live or dead, rendered in one of two styles (live cells cut, or field cut with live cells standing).
 _Avoid_: Pixel art, bitmap
 
+**Plate**:
+Many dominoes laid out standing on one print bed and sliced as a single print.
+_Avoid_: Batch, tray, build plate, multi-print
+
 **Profile**:
 The one set of PrusaSlicer settings every domino is sliced with, for the one printer and filament we target. Captured from a print that came out well, never tuned by hand.
 _Avoid_: Slicer settings, print settings, config

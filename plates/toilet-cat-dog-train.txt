@@ -1,5 +1,0 @@
-# The toilet, cat face, dog face, and train, one each.
-toilet
-cat_face
-dog_face
-train

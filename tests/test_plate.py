@@ -96,13 +96,12 @@ def test_plate_files_are_tokens_with_comments(tmp_path):
 
 def test_every_saved_plate_reads_and_fits():
     files = saved()
-    assert {"all", "toilet-cat-dog-train"} <= set(files)
+    assert "all" in files
     cols, rows = capacity()
     for name, path in files.items():
         motifs = read(path)
         assert 0 < len(motifs) <= cols * rows, name
     assert [m.name for m in read(files["all"])] == list(MOTIFS)
-    assert [m.name for m in read(files["toilet-cat-dog-train"])] == ["toilet", "cat_face", "dog_face", "train"]
 
 
 @pytest.mark.skipif(shutil.which("prusa-slicer") is not None, reason="slicer present, plate would slice")

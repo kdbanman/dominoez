@@ -1,0 +1,43 @@
+name: plate
+
+# A one-off plate: run this by hand from the Actions tab (or the API) with the
+# motifs you want on the bed, and download the gcode from the run. Nothing is
+# committed. Plates wanted on every run live in plates/ and go through build.yml.
+
+on:
+  workflow_dispatch:
+    inputs:
+      motifs:
+        description: "Motif names, each optionally followed by a count like x4, or * for one of everything (e.g. toilet cat_face dog_face train)"
+        required: true
+        type: string
+      name:
+        description: "Name of the plate; the artifact is plate-<name>.gcode"
+        required: false
+        default: plate
+        type: string
+
+jobs:
+  plate:
+    # Pinned so the apt prusa-slicer version matches build.yml.
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+      - uses: astral-sh/setup-uv@v6
+      - name: install PrusaSlicer
+        run: |
+          sudo apt-get update -qq
+          sudo apt-get install -y -qq prusa-slicer
+          prusa-slicer --help | head -1
+      - run: uv sync --locked
+      - run: uv run dominoez build
+      - name: lay out and slice the plate
+        env:
+          MOTIFS: ${{ inputs.motifs }}
+          NAME: ${{ inputs.name }}
+        run: uv run dominoez plate $MOTIFS --name "$NAME"
+      - uses: actions/upload-artifact@v4
+        with:
+          name: plate-${{ inputs.name }}.gcode
+          path: plate/${{ inputs.name }}.gcode
+          if-no-files-found: error

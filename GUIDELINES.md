@@ -87,6 +87,21 @@ Two styles, chosen per motif.
 
 Cell size comes from dividing the motif box width by the grid width, unless the motif gives its own pitch. A creeper at 8 cells across gives 3.5 mm cells, above the island minimum. The Life patterns are lopsided within their 3x3 box, so at the full 9.3 mm pitch they would leave the motif box once placed by centre of mass; both use 7 mm cells instead.
 
+## Plates
+
+Many dominoes print on one bed as a plate: standing, foot down, faces along x, in rows across the bed. The bed comes from the profile's `bed_shape`.
+
+| Part | Value |
+| --- | --- |
+| Gap between neighbours | 10 mm |
+| Margin from the bed edge | 10 mm, past the 3 mm skirt |
+| Bed | 290 x 290 mm |
+| Capacity | 6 across, 12 deep, 72 dominoes |
+
+A one-off plate is a manual run of the `plate` workflow with the motifs typed in; its gcode is an artifact on that run and nothing is committed. Plates wanted on every CI run are files in `plates/`: motif names, each optionally followed by a count like `x4`, or `*` for one of every motif. CI builds and slices every one and publishes its gcode as an artifact named `plate-<name>.gcode`. Plate outputs are not committed either way.
+
+The plate is one STL and prints layer by layer across every domino at once. Sequential printing, one domino finished before the next starts, is not an option: the printer's clearance over a finished part is 20 mm and a domino is 72 mm tall. Layer by layer, every travel move crosses the plate at the height of every tower, and the profile has no lift on travel, so one tower knocked or strung ruins the plate. Longer layers do give each tower more time to cool. A plate is a bigger bet than a single domino; print a few before printing seventy.
+
 ## Review flow
 
 1. Write the motif as a Python function returning shapely geometry.

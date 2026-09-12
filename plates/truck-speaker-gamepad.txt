@@ -1,2 +1,0 @@
-# Temporary: one-off plate of the three new motifs, removed in the next commit.
-truck speaker gamepad

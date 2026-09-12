@@ -4,6 +4,10 @@ A plate is a set of built dominoes laid out standing on the bed, foot down,
 and written as one STL so the slicer prints them together, layer by layer.
 Dominoes stand in rows across the bed with their faces along x, spaced so the
 skirt, travel moves, and a wobbling nozzle clear every tower.
+
+Plates worth keeping are files in `plates/`, one per line of motif names,
+each name optionally followed by a count like `x4`, a `*` for one of every
+motif, and `#` comments. CI builds and slices every one of them.
 """
 
 import re
@@ -13,8 +17,12 @@ import trimesh
 
 from .build import REPO
 from .motif import Motif
+from .motifs import MOTIFS
 from .slice import PROFILE
 from .spec import BODY
+
+PLATES = REPO / "plates"
+_COUNT = re.compile(r"^(?:x(\d+)|(\d+)x)$")
 
 GAP = 10.0  # standing material to standing material, between neighbours
 MARGIN = 10.0  # from the bed edge to the nearest domino, past the 3 mm skirt
@@ -57,6 +65,37 @@ def layout(count: int, profile: Path = PROFILE) -> list[tuple[float, float]]:
         (x0 + (i % cols) * (BODY.width + GAP), y0 + (i // cols) * (BODY.thickness + GAP))
         for i in range(count)
     ]
+
+
+def select(tokens: list[str]) -> list[Motif]:
+    """Motifs for a plate from tokens: names, each optionally followed by a count like `x4` or `4x`, and `*` for every motif."""
+    chosen: list[Motif] = []
+    for token in tokens:
+        count = _COUNT.match(token)
+        if count:
+            if not chosen:
+                raise ValueError(f"count {token!r} must follow a motif name")
+            chosen.extend([chosen[-1]] * (int(count.group(1) or count.group(2)) - 1))
+        elif token == "*":
+            chosen.extend(MOTIFS.values())
+        elif token in MOTIFS:
+            chosen.append(MOTIFS[token])
+        else:
+            raise ValueError(f"unknown motif {token!r}. Known: {', '.join(MOTIFS)}")
+    return chosen
+
+
+def read(path: Path) -> list[Motif]:
+    """The motifs a plate file lists: tokens as in `select`, whitespace separated, `#` to end of line ignored."""
+    tokens = []
+    for line in path.read_text().splitlines():
+        tokens.extend(line.partition("#")[0].split())
+    return select(tokens)
+
+
+def saved(plates: Path = PLATES) -> dict[str, Path]:
+    """Every plate file, by name."""
+    return {p.stem: p for p in sorted(plates.glob("*.txt"))}
 
 
 def plate(motifs: list[Motif], name: str, out: Path = REPO) -> Path:

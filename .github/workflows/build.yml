@@ -10,6 +10,7 @@ jobs:
     runs-on: ubuntu-24.04
     outputs:
       motifs: ${{ steps.motifs.outputs.motifs }}
+      plates: ${{ steps.plates.outputs.plates }}
     steps:
       - uses: actions/checkout@v4
       - uses: astral-sh/setup-uv@v6
@@ -22,7 +23,7 @@ jobs:
       - run: uv run pytest
       - run: uv run dominoez build
       - run: uv run dominoez slice
-      - run: uv run dominoez plate --name all
+      - run: uv run dominoez plate
       - name: committed outputs match the code
         run: |
           git add -N stl svg png gcode
@@ -35,11 +36,13 @@ jobs:
           name: gcode-all
           path: gcode/*.gcode
           if-no-files-found: error
-      - name: one of every motif on one bed
+      - id: plates
+        run: echo "plates=$(ls plates/*.txt | xargs -n1 basename | sed 's/\.txt$//' | jq -R . | jq -sc .)" >> "$GITHUB_OUTPUT"
+      - name: all plate gcode, for the per-plate fan-out below
         uses: actions/upload-artifact@v4
         with:
-          name: plate-all.gcode
-          path: plate/all.gcode
+          name: plate-all
+          path: plate/*.gcode
           if-no-files-found: error
 
   gcode:
@@ -58,4 +61,22 @@ jobs:
         with:
           name: ${{ matrix.motif }}.gcode
           path: gcode/${{ matrix.motif }}.gcode
+          if-no-files-found: error
+
+  plate:
+    # One artifact per plate file, so a download is plate-<name>.gcode.zip holding <name>.gcode.
+    needs: build
+    runs-on: ubuntu-24.04
+    strategy:
+      matrix:
+        plate: ${{ fromJson(needs.build.outputs.plates) }}
+    steps:
+      - uses: actions/download-artifact@v4
+        with:
+          name: plate-all
+          path: plate
+      - uses: actions/upload-artifact@v4
+        with:
+          name: plate-${{ matrix.plate }}.gcode
+          path: plate/${{ matrix.plate }}.gcode
           if-no-files-found: error

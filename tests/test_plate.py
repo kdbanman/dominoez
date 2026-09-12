@@ -5,9 +5,9 @@ import pytest
 import trimesh
 
 from dominoez.build import build_motif
-from dominoez.cli import _select_counted, main
+from dominoez.cli import main
 from dominoez.motifs import MOTIFS
-from dominoez.plate import GAP, MARGIN, bed, capacity, layout, plate
+from dominoez.plate import GAP, MARGIN, PLATES, bed, capacity, layout, plate, read, saved, select
 from dominoez.spec import BODY
 
 
@@ -74,15 +74,35 @@ def test_plate_stacks_the_built_dominoes_where_layout_puts_them(tmp_path):
     assert zhi == pytest.approx(BODY.height, abs=1e-3)
 
 
-def test_counts_follow_names():
-    names = [m.name for m in _select_counted(["blank", "x3", "heart", "2x", "heart"])]
+def test_counts_follow_names_and_star_is_everything():
+    names = [m.name for m in select(["blank", "x3", "heart", "2x", "heart"])]
     assert names == ["blank", "blank", "blank", "heart", "heart", "heart"]
-    assert [m.name for m in _select_counted([])] == list(MOTIFS)
+    assert [m.name for m in select(["*"])] == list(MOTIFS)
+    assert [m.name for m in select(["*", "x2"])] == list(MOTIFS) + [list(MOTIFS)[-1]]
 
 
-def test_count_without_a_name_is_an_error():
-    with pytest.raises(SystemExit):
-        _select_counted(["x3"])
+def test_bad_tokens_are_errors():
+    with pytest.raises(ValueError):
+        select(["x3"])
+    with pytest.raises(ValueError):
+        select(["no_such_motif"])
+
+
+def test_plate_files_are_tokens_with_comments(tmp_path):
+    f = tmp_path / "party.txt"
+    f.write_text("# a party\nheart x2  # two hearts\nblank\n\n")
+    assert [m.name for m in read(f)] == ["heart", "heart", "blank"]
+
+
+def test_every_saved_plate_reads_and_fits():
+    files = saved()
+    assert {"all", "toilet-cat-dog-train"} <= set(files)
+    cols, rows = capacity()
+    for name, path in files.items():
+        motifs = read(path)
+        assert 0 < len(motifs) <= cols * rows, name
+    assert [m.name for m in read(files["all"])] == list(MOTIFS)
+    assert [m.name for m in read(files["toilet-cat-dog-train"])] == ["toilet", "cat_face", "dog_face", "train"]
 
 
 @pytest.mark.skipif(shutil.which("prusa-slicer") is not None, reason="slicer present, plate would slice")
@@ -93,3 +113,8 @@ def test_plate_command_without_a_slicer_writes_the_stl(tmp_path, capsys):
     assert "pair: 2 dominoes on a bed of 6 x 12" in out
     assert "STL only" in out
     assert (tmp_path / "plate" / "pair.stl").exists()
+
+
+def test_plate_command_with_no_names_needs_every_stl(tmp_path):
+    with pytest.raises(SystemExit, match="is missing"):
+        main(["plate", "--out", str(tmp_path)])

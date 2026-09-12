@@ -18,12 +18,13 @@ uv run dominoez list            # registered motifs and their issue numbers
 uv run dominoez render heart    # SVG and PNG only, for approval
 uv run dominoez build           # check, SVG, PNG, STL
 uv run dominoez slice           # STL to gcode, needs prusa-slicer on the path
-uv run dominoez plate heart x4 bicycle x2 --name party   # many built dominoes on one bed
+uv run dominoez plate           # every plate in plates/, as plate/<name>.stl (+ gcode with prusa-slicer)
+uv run dominoez plate heart x4 bicycle x2 --name party   # an ad hoc plate
 ```
 
 Slicing uses `slicer/profile.ini`, a PrusaSlicer profile lifted from a print that came out well. Install PrusaSlicer (`apt install prusa-slicer` on Ubuntu) or set `PRUSA_SLICER` to the binary. `build` does not need it.
 
-`plate` lays built dominoes out standing on one bed and writes `plate/<name>.stl`, then slices it to `plate/<name>.gcode` when prusa-slicer is on the path. Each motif name may be followed by a count like `x4`; no names means one of every motif. The bed holds 6 by 12. Plates are not committed; CI uploads one of everything as the `plate-all.gcode` artifact.
+`plate` lays built dominoes out standing on one bed and writes `plate/<name>.stl`, then slices it to `plate/<name>.gcode` when prusa-slicer is on the path. Each motif name may be followed by a count like `x4`, and `*` means one of every motif. With no names it makes every plate described in `plates/`, one file per plate listing the same tokens. The bed holds 6 by 12. Plate outputs are not committed; CI uploads each plate's gcode as an artifact named `plate-<name>.gcode`.
 
 A motif that breaks a printability rule fails the build with the rule and where it broke. CI rebuilds and reslices everything, fails if the committed `stl/`, `svg/`, `png/`, or `gcode/blank.gcode` differ from what the code produces, and uploads each motif's gcode as an artifact named `<motif>.gcode`.
 

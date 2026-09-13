@@ -5,6 +5,7 @@ from . import (
     banana,
     bicycle,
     blank,
+    book,
     bunny_face,
     cat_face,
     creeper,
@@ -25,6 +26,7 @@ from . import (
     mushroom,
     paint_brush,
     pickaxe,
+    plane,
     poo,
     r_pentomino,
     rainbow,
@@ -77,6 +79,8 @@ _ALL: list[Motif] = [
     kitty.motif,
     poo.motif,
     lego_brick.motif,
+    plane.motif,
+    book.motif,
 ]
 
 MOTIFS: dict[str, Motif] = {m.name: m for m in _ALL}

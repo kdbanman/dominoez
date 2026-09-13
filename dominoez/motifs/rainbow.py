@@ -1,24 +1,29 @@
-"""A rainbow: three nested half-ring bands over a flat base, each band a
-cut channel parted from the next by a thin standing line."""
+"""A rainbow: three concentric half-ring bands standing on a flat base,
+each parted from the next by a thin standing line. The bands are as thick
+as the face allows; a shorter sweep with radial ends reads as a wifi icon,
+so the arch keeps the full half circle."""
 
 from shapely.geometry import Point, box
 
 from ..geometry import union
 from ..motif import Motif
 
-OUTER_R = 13.0  # outer radius of the top band
-BAND_W = 2.4  # each cut band
-LINE_W = 1.2  # standing line between bands, above the wall minimum
+INNER_R = 2.9  # radius of the hole under the innermost band
+BAND = 2.85  # thickness of each cut band
+GAP = 1.1  # standing line between bands, past the wall minimum
 BANDS = 3
-
-
-def _band(outer: float):
-    ring = Point(0, 0).buffer(outer, 128).difference(Point(0, 0).buffer(outer - BAND_W, 128))
-    return ring.intersection(box(-outer, 0, outer, outer))
+ROUND = 0.4  # blunts the corners where the bands meet the base
 
 
 def draw():
-    return union(*(_band(OUTER_R - i * (BAND_W + LINE_W)) for i in range(BANDS)))
+    parts = []
+    r = INNER_R
+    for _ in range(BANDS):
+        ring = Point(0, 0).buffer(r + BAND, 96).difference(Point(0, 0).buffer(r, 96))
+        parts.append(ring)
+        r += BAND + GAP
+    arch = union(*parts).intersection(box(-r, 0, r, r))
+    return arch.buffer(-ROUND, 8).buffer(ROUND, 8)
 
 
 motif = Motif(name="rainbow", issue=34, draw=draw)

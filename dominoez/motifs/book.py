@@ -1,52 +1,61 @@
-"""An open book seen from the front. Two engraved pages rise from a standing
-spine, each page's top edge sweeping up toward the middle, with three
-standing text lines running out from the spine across each page. A band of
-engraved cover shows below the pages, parted from them by a standing wall,
-dipping to a point under the spine."""
+"""An open book, the classic flat icon: two engraved pages side by side
+forming a wide V, each rising from a standing spine to a slightly higher
+outer edge, top and bottom edges gently bowed like a page seen from the
+front and above. Three standing text lines run out from the spine across
+each page, stopping short of the page's outer edge."""
 
-from shapely.geometry import Polygon, box
+from shapely.geometry import Polygon
 
 from ..geometry import stroke, union
 from ..motif import Motif
 
-PAGE_W = 9.5  # each page, from the spine out to its edge
-SPINE_W = 1.4  # standing wall between the pages
-BOTTOM_IN, BOTTOM_OUT = -6.0, -4.5  # page bottom at the spine and at the outer edge
-TOP_OUT, TOP_IN = 4.5, 7.5  # page top at the outer edge and at the spine
-BOW = -0.8  # the top edge sags by this much in its middle, so it sweeps up into the spine
-TEXT_V = [2.8, 0.0, -2.8]  # standing lines, from the top down
-TEXT_W = 1.6
-TEXT_LEN = 6.0
-COVER_OUT = 2.8  # how far the cover reaches below the pages
-COVER_SIDE = 1.2  # how far the cover reaches past the pages' outer edges
-COVER_TOP = -3.5  # the cover only shows below this height
-WALL = 1.0  # standing gap between pages and cover
-SMOOTH = 1.2  # rounds the cover's inner edge under the spine
-ROUND = 0.7  # softens every page and cover corner
+SPINE = 1.2  # standing gap between the pages
+PAGE_W = 11.4  # each page, from the spine out to its edge
+PAGE_H = 14.0  # page height, the same at the spine and at the outer edge
+RISE = 2.0  # how much higher the outer edge sits than the spine
+BOW = 0.4  # the top and bottom edges bulge up by this much in their middle, so the outer corner stays highest
+MID_V = -1.0  # v of the page's mid line at the spine
+TEXT_V = [3.4, 0.0, -3.4]  # standing lines, offset from the page's mid line
+TEXT_W = 1.2
+TEXT_INSET = 2.6  # from the outer page edge to the end of a line
+ROUND = 0.8  # rounds every page corner
+
+
+def _edge(sign, v0, n=24):
+    """Points along a page edge from the spine out, starting at height v0.
+
+    The edge rises by RISE over the page and bows up by BOW in the middle: a
+    quadratic curve through the spine end, a raised control point, and the
+    outer end.
+    """
+    x0, x1 = sign * SPINE / 2, sign * (SPINE / 2 + PAGE_W)
+    xm, vm = (x0 + x1) / 2, v0 + RISE / 2 + 2 * BOW
+    pts = []
+    for i in range(n + 1):
+        t = i / n
+        a, b, c = (1 - t) ** 2, 2 * (1 - t) * t, t**2
+        pts.append((a * x0 + b * xm + c * x1, a * v0 + b * vm + c * (v0 + RISE)))
+    return pts
 
 
 def _page(sign):
     """One page; sign is +1 for the right page, -1 for the left."""
-    s = sign
-    x0 = s * SPINE_W / 2
-    x1 = s * (SPINE_W / 2 + PAGE_W)
-    mid = (x0 + x1) / 2
-    # Top edge: a gentle curve from the outer corner up into the spine.
-    top = [(x1, TOP_OUT), (mid, (TOP_OUT + TOP_IN) / 2 + BOW), (x0, TOP_IN)]
-    page = Polygon([(x0, BOTTOM_IN), (x1, BOTTOM_OUT), *top])
-    page = page.buffer(-ROUND, 8).buffer(ROUND, 8)
-    lines = [stroke([(0, v), (x0 + s * TEXT_LEN, v)], TEXT_W, cap="flat") for v in TEXT_V]
+    top = _edge(sign, MID_V + PAGE_H / 2)
+    bottom = _edge(sign, MID_V - PAGE_H / 2)
+    page = Polygon(bottom + top[::-1])
+    page = page.buffer(-ROUND, 16).buffer(ROUND, 16)
+    # Text lines follow the bow of the page, start inside the spine so they
+    # join the standing face, and stop short of the outer edge.
+    x_end = SPINE / 2 + PAGE_W - TEXT_INSET - TEXT_W / 2
+    lines = []
+    for dv in TEXT_V:
+        pts = [(u, v) for u, v in _edge(sign, MID_V + dv) if abs(u) <= x_end]
+        lines.append(stroke([(0, MID_V + dv), *pts], TEXT_W))
     return page.difference(union(*lines))
 
 
 def draw():
-    pages = union(_page(1), _page(-1))
-    inner = pages.buffer(WALL, 8).buffer(SMOOTH, 8).buffer(-SMOOTH, 8)
-    cover = pages.buffer(COVER_OUT, 8).difference(inner)
-    reach = SPINE_W / 2 + PAGE_W + COVER_SIDE
-    cover = cover.intersection(box(-reach, -20, reach, COVER_TOP))
-    cover = cover.buffer(-ROUND, 8).buffer(ROUND, 8)
-    return union(pages, cover)
+    return union(_page(1), _page(-1))
 
 
 motif = Motif(name="book", issue=51, draw=draw)

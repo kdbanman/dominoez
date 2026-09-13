@@ -10,7 +10,9 @@ from . import (
     creeper,
     dog_face,
     duck,
+    fish,
     gamepad,
+    glasses,
     glider,
     headphones,
     heart,
@@ -18,6 +20,7 @@ from . import (
     letter_g,
     letter_i,
     mushroom,
+    paint_brush,
     pickaxe,
     r_pentomino,
     rainbow,
@@ -59,6 +62,9 @@ _ALL: list[Motif] = [
     headphones.motif,
     mushroom.motif,
     bunny_face.motif,
+    paint_brush.motif,
+    glasses.motif,
+    fish.motif,
 ]
 
 MOTIFS: dict[str, Motif] = {m.name: m for m in _ALL}

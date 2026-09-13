@@ -1,0 +1,5 @@
+# One-off reprint of gamepad and letter I with a brim, plus the kiwi.
+gamepad
+letter_i
+kiwi
+brim=4

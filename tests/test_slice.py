@@ -5,7 +5,7 @@ import pytest
 
 from dominoez.build import build_motif
 from dominoez.motifs import MOTIFS
-from dominoez.slice import PROFILE, slice_motif, stats
+from dominoez.slice import PROFILE, slice_motif, slice_stl, stats
 
 needs_slicer = pytest.mark.skipif(
     shutil.which("prusa-slicer") is None, reason="prusa-slicer is not installed"
@@ -50,6 +50,18 @@ def test_blank_slices_and_is_deterministic(tmp_path):
         assert 10 < grams < 20, summary
         hashes.append(hashlib.sha256(text.encode()).hexdigest())
     assert hashes[0] == hashes[1]
+
+
+@needs_slicer
+def test_overrides_win_over_the_profile(tmp_path):
+    build_motif(MOTIFS["blank"], tmp_path)
+    stl = tmp_path / "stl" / "blank.stl"
+    plain, brimmed = tmp_path / "plain.gcode", tmp_path / "brimmed.gcode"
+    slice_stl(stl, plain)
+    slice_stl(stl, brimmed, overrides={"brim_width": "4"})
+    assert "; brim_width = 0\n" in plain.read_text()
+    assert "; brim_width = 4\n" in brimmed.read_text()
+    assert float(stats(brimmed)["filament used [g]"]) > float(stats(plain)["filament used [g]"])
 
 
 def test_slice_needs_a_built_stl(tmp_path):

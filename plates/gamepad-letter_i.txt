@@ -1,0 +1,4 @@
+# One-off reprint of the two that failed on the five-motif plate, this time with a brim.
+gamepad
+letter_i
+brim=4

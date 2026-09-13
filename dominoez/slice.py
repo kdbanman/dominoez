@@ -34,20 +34,24 @@ def slicer_binary() -> str:
     return found
 
 
-def slice_stl(stl: Path, gcode: Path, profile: Path = PROFILE) -> None:
+def slice_stl(stl: Path, gcode: Path, profile: Path = PROFILE, overrides: dict[str, str] | None = None) -> None:
     """Slice one STL to gcode, then make the file byte-for-byte reproducible.
 
-    PrusaSlicer writes the current time into the first line. Everything else is
-    deterministic for a given slicer version, profile, and STL, so that one line is
-    trimmed to keep the committed gcode stable across rebuilds.
+    `overrides` are profile settings for this slice only, by profile key, such as
+    `{"brim_width": "4"}`; they win over the profile. PrusaSlicer writes the current
+    time into the first line. Everything else is deterministic for a given slicer
+    version, profile, STL, and overrides, so that one line is trimmed to keep the
+    committed gcode stable across rebuilds.
     """
     gcode.parent.mkdir(parents=True, exist_ok=True)
+    options = [f"--{key.replace('_', '-')}={value}" for key, value in (overrides or {}).items()]
     subprocess.run(
         [
             slicer_binary(),
             "--export-gcode",
             "--load",
             str(profile),
+            *options,
             "--output",
             str(gcode),
             str(stl),

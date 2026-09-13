@@ -7,7 +7,8 @@ skirt, travel moves, and a wobbling nozzle clear every tower.
 
 Plates worth keeping are files in `plates/`, one per line of motif names,
 each name optionally followed by a count like `x4`, a `*` for one of every
-motif, and `#` comments. CI builds and slices every one of them.
+motif, `#` comments, and slicer settings for the whole plate such as
+`brim=4`. CI builds and slices every one of them.
 """
 
 import re
@@ -23,6 +24,10 @@ from .spec import BODY
 
 PLATES = REPO / "plates"
 _COUNT = re.compile(r"^(?:x(\d+)|(\d+)x)$")
+_SETTING = re.compile(r"^(\w+)=(.*)$")
+
+# Plate settings, `name=value` tokens, and the profile key each one overrides when the plate is sliced.
+SETTINGS = {"brim": "brim_width"}
 
 GAP = 10.0  # standing material to standing material, between neighbours
 MARGIN = 10.0  # from the bed edge to the nearest domino, past the 3 mm skirt
@@ -67,12 +72,26 @@ def layout(count: int, profile: Path = PROFILE) -> list[tuple[float, float]]:
     ]
 
 
-def select(tokens: list[str]) -> list[Motif]:
-    """Motifs for a plate from tokens: names, each optionally followed by a count like `x4` or `4x`, and `*` for every motif."""
+def select(tokens: list[str]) -> tuple[list[Motif], dict[str, str]]:
+    """Motifs and slicer overrides for a plate from tokens.
+
+    Tokens are motif names, each optionally followed by a count like `x4` or `4x`,
+    `*` for every motif, and settings like `brim=4` (see SETTINGS) that apply to the
+    whole plate. Overrides come back keyed by profile setting, `brim_width` for `brim`.
+    """
     chosen: list[Motif] = []
+    overrides: dict[str, str] = {}
     for token in tokens:
         count = _COUNT.match(token)
-        if count:
+        setting = _SETTING.match(token)
+        if setting:
+            name, value = setting.groups()
+            if name not in SETTINGS:
+                raise ValueError(f"unknown setting {name!r} in {token!r}. Known: {', '.join(SETTINGS)}")
+            if not re.fullmatch(r"\d+(\.\d+)?", value):
+                raise ValueError(f"{token!r} needs a number of millimetres, like {name}=4")
+            overrides[SETTINGS[name]] = value
+        elif count:
             if not chosen:
                 raise ValueError(f"count {token!r} must follow a motif name")
             chosen.extend([chosen[-1]] * (int(count.group(1) or count.group(2)) - 1))
@@ -82,11 +101,11 @@ def select(tokens: list[str]) -> list[Motif]:
             chosen.append(MOTIFS[token])
         else:
             raise ValueError(f"unknown motif {token!r}. Known: {', '.join(MOTIFS)}")
-    return chosen
+    return chosen, overrides
 
 
-def read(path: Path) -> list[Motif]:
-    """The motifs a plate file lists: tokens as in `select`, whitespace separated, `#` to end of line ignored."""
+def read(path: Path) -> tuple[list[Motif], dict[str, str]]:
+    """The motifs and overrides a plate file lists: tokens as in `select`, whitespace separated, `#` to end of line ignored."""
     tokens = []
     for line in path.read_text().splitlines():
         tokens.extend(line.partition("#")[0].split())

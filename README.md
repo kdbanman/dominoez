@@ -20,11 +20,12 @@ uv run dominoez build           # check, SVG, PNG, STL
 uv run dominoez slice           # STL to gcode, needs prusa-slicer on the path
 uv run dominoez plate           # every plate in plates/, as plate/<name>.stl (+ gcode with prusa-slicer)
 uv run dominoez plate heart x4 bicycle x2 --name party   # an ad hoc plate
+uv run dominoez plate gamepad letter_i brim=4 --name retry # the same, sliced with a 4 mm brim
 ```
 
 Slicing uses `slicer/profile.ini`, a PrusaSlicer profile lifted from a print that came out well. Install PrusaSlicer (`apt install prusa-slicer` on Ubuntu) or set `PRUSA_SLICER` to the binary. `build` does not need it.
 
-`plate` lays built dominoes out standing on one bed and writes `plate/<name>.stl`, then slices it to `plate/<name>.gcode` when prusa-slicer is on the path. Each motif name may be followed by a count like `x4`, and `*` means one of every motif. With no names it makes every plate described in `plates/`, one file per plate listing the same tokens. The bed holds 6 by 12. Plate outputs are not committed.
+`plate` lays built dominoes out standing on one bed and writes `plate/<name>.stl`, then slices it to `plate/<name>.gcode` when prusa-slicer is on the path. Each motif name may be followed by a count like `x4`, and `*` means one of every motif. A token like `brim=4` sets the slicer's brim width in millimetres for that plate, over the profile's zero; the plate rows are spaced to leave room for it. With no names it makes every plate described in `plates/`, one file per plate listing the same tokens. The bed holds 6 by 12. Plate outputs are not committed.
 
 For a one-off plate without a slicer at hand, run the `plate` workflow by hand from the Actions tab with the same tokens (say `toilet cat_face dog_face train`) and download `plate-<name>.gcode` from that run. Plates in `plates/` are sliced on every CI run instead and uploaded the same way, `plate-all.gcode` today.
 

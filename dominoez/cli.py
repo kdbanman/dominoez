@@ -18,30 +18,31 @@ def _select(names: list[str]):
     return [MOTIFS[n] for n in names]
 
 
-def _plates(args) -> list[tuple[str, list]]:
-    """(name, motifs) for each plate to make: the tokens given, or every file in plates/."""
+def _plates(args) -> list[tuple[str, list, dict]]:
+    """(name, motifs, overrides) for each plate to make: the tokens given, or every file in plates/."""
     if args.names:
-        return [(args.name, select(args.names))]
+        return [(args.name, *select(args.names))]
     files = saved()
     if not files:
         raise ValueError(f"no plate files in {PLATES}")
-    return [(name, read(path)) for name, path in files.items()]
+    return [(name, *read(path)) for name, path in files.items()]
 
 
-def _plate(name: str, motifs: list, out: Path) -> None:
+def _plate(name: str, motifs: list, overrides: dict, out: Path) -> None:
     cols, rows = capacity()
     stl = plate(motifs, name, out)
     print(f"{name}: {len(motifs)} dominoes on a bed of {cols} x {rows}, {stl}")
     gcode = stl.with_suffix(".gcode")
     try:
-        slice_stl(stl, gcode)
+        slice_stl(stl, gcode, overrides=overrides)
     except SlicerMissing as e:
         print(f"{name}: STL only, {e}")
         return
     summary = stats(gcode)
+    settings = "".join(f", {k} {v}" for k, v in overrides.items())
     print(
         f"{name}: slice ok, {summary.get('filament used [g]', '?')} g, "
-        f"{summary.get('estimated printing time (normal mode)', '?')}, {gcode}"
+        f"{summary.get('estimated printing time (normal mode)', '?')}{settings}, {gcode}"
     )
 
 
@@ -59,7 +60,7 @@ def main(argv: list[str] | None = None) -> None:
         sp.add_argument("--out", type=Path, default=REPO, help="output root (default: repo root)")
     sub.add_parser("list", help="list registered motifs")
     sp = sub.add_parser("plate", help="lay built dominoes out on one bed as plate/<name>.stl, and slice it if PrusaSlicer is on the path")
-    sp.add_argument("names", nargs="*", help="motif names, each optionally followed by a count like x4, or * for one of everything (default: every file in plates/)")
+    sp.add_argument("names", nargs="*", help="motif names, each optionally followed by a count like x4, * for one of everything, and plate settings like brim=4 (default: every file in plates/)")
     sp.add_argument("--name", default="plate", help="output name when motifs are given (default: plate)")
     sp.add_argument("--out", type=Path, default=REPO, help="output root (default: repo root)")
     args = p.parse_args(argv)
@@ -71,8 +72,8 @@ def main(argv: list[str] | None = None) -> None:
 
     if args.cmd == "plate":
         try:
-            for name, motifs in _plates(args):
-                _plate(name, motifs, args.out)
+            for name, motifs, overrides in _plates(args):
+                _plate(name, motifs, overrides, args.out)
         except (ValueError, FileNotFoundError) as e:
             sys.exit(str(e))
         return

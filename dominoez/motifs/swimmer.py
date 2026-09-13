@@ -1,42 +1,43 @@
-"""A swimmer doing front crawl, seen from the side and heading right: a
-wavy water line, a round head lifted above it, a long low back rising out
-of the water behind the head, and one bent arm swinging up from the
-shoulder, over the head, and forward to the next stroke."""
+"""The swimming pictogram, as on a pool sign, heading right: a round head
+at the front, just above the water, a horizontal rounded bar for the body
+lying along the surface behind it, and one arm rising from the shoulder
+mid-stroke, bent at the elbow with the forearm reaching forward over the
+head. Beneath it all, a wavy water line of three smooth waves, a little
+wider than the swimmer."""
 
 import math
 
-from shapely import affinity
-from shapely.geometry import Point
-
-from ..geometry import dot, stroke, union
+from ..geometry import dot, rounded_rect, stroke, union
 from ..motif import Motif
+from shapely import affinity
 
-WATER_SPAN = (-9.0, 11.5)  # u extent of the water line
-WAVE_LEN, WAVE_AMP = 14.0, 0.7  # one full wave per WAVE_LEN mm
-WAVE_PHASE = 7.5  # u of a rising zero crossing, chosen to put a trough under the head
-WAVE_W = 1.8
-HEAD = (4.5, 4.5, 4.6)  # (u, v, diameter), well clear of the trough below it
-BACK_W, BACK_H = 9.0, 3.0  # ellipse axes of the back, merging with the water
-BACK_C = (-3.0, 0.8)
-ARM = [(-2.5, 2.0), (-0.5, 6.5), (2.0, 10.0), (7.0, 9.0), (10.0, 5.5)]  # shoulder, elbow, hand; a wall past the minimum from the head
+HEAD = (9.6, 4.2, 4.8)  # (u, v, diameter); front of the swimmer, a wall clear of the body and arm
+BODY_W, BODY_H = 14.0, 3.2  # rounded bar lying along the water
+BODY_C = (-2.0, 1.6)
+ARM = [(3.0, 2.0), (0.0, 10.2), (10.8, 9.0)]  # shoulder just behind the head end of the body, elbow up and back, hand forward over the head
 ARM_W = 2.6
-CLOSE = 0.5  # rounds the crease where the back and arm leave the water
+WATER_SPAN = (-10.5, 12.5)  # u extent of the water line
+WAVE_LEN, WAVE_AMP = 7.67, 0.9  # one full wave per WAVE_LEN mm
+WAVE_V = -3.4  # centre line of the water, a wall below the body
+WAVE_W = 2.0
+CLOSE = 0.9  # blends the shoulder into the body and the elbow into one smooth bend
 
 
 def _water():
     u0, u1 = WATER_SPAN
-    n = 48
-    points = []
-    for i in range(n + 1):
-        u = u0 + (u1 - u0) * i / n
-        points.append((u, WAVE_AMP * math.sin(2 * math.pi * (u - WAVE_PHASE) / WAVE_LEN)))
+    n = 64
+    points = [
+        (u, WAVE_V + WAVE_AMP * math.sin(2 * math.pi * (u - u0) / WAVE_LEN))
+        for u in (u0 + (u1 - u0) * i / n for i in range(n + 1))
+    ]
     return stroke(points, WAVE_W)
 
 
 def draw():
-    back = affinity.scale(Point(*BACK_C).buffer(1.0, 64), BACK_W / 2, BACK_H / 2, origin=BACK_C)
-    swimmer = union(_water(), back, stroke(ARM, ARM_W), dot(*HEAD))
-    return swimmer.buffer(CLOSE, 16).buffer(-CLOSE, 16)
+    body = affinity.translate(rounded_rect(BODY_W, BODY_H, BODY_H / 2), *BODY_C)
+    figure = union(body, stroke(ARM, ARM_W))
+    figure = figure.buffer(CLOSE, 16).buffer(-CLOSE, 16)
+    return union(figure, dot(*HEAD), _water())
 
 
 motif = Motif(name="swimmer", issue=45, draw=draw)

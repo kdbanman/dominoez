@@ -14,6 +14,7 @@ from . import (
     gamepad,
     glasses,
     glider,
+    gymnast,
     headphones,
     heart,
     kiwi,
@@ -25,7 +26,9 @@ from . import (
     r_pentomino,
     rainbow,
     rocket,
+    saw,
     speaker,
+    swimmer,
     toilet,
     tornado,
     toucan,
@@ -65,6 +68,9 @@ _ALL: list[Motif] = [
     paint_brush.motif,
     glasses.motif,
     fish.motif,
+    gymnast.motif,
+    saw.motif,
+    swimmer.motif,
 ]
 
 MOTIFS: dict[str, Motif] = {m.name: m for m in _ALL}

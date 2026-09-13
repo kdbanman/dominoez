@@ -15,7 +15,9 @@ from . import (
     kiwi,
     letter_g,
     letter_i,
+    pickaxe,
     r_pentomino,
+    rainbow,
     rocket,
     speaker,
     toilet,
@@ -23,6 +25,7 @@ from . import (
     toucan,
     train,
     truck,
+    unicorn,
 )
 
 _ALL: list[Motif] = [
@@ -47,6 +50,9 @@ _ALL: list[Motif] = [
     gamepad.motif,
     kiwi.motif,
     letter_i.motif,
+    rainbow.motif,
+    unicorn.motif,
+    pickaxe.motif,
 ]
 
 MOTIFS: dict[str, Motif] = {m.name: m for m in _ALL}

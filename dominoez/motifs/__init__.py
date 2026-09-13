@@ -18,11 +18,14 @@ from . import (
     headphones,
     heart,
     kiwi,
+    kitty,
+    lego_brick,
     letter_g,
     letter_i,
     mushroom,
     paint_brush,
     pickaxe,
+    poo,
     r_pentomino,
     rainbow,
     rocket,
@@ -71,6 +74,9 @@ _ALL: list[Motif] = [
     gymnast.motif,
     saw.motif,
     swimmer.motif,
+    kitty.motif,
+    poo.motif,
+    lego_brick.motif,
 ]
 
 MOTIFS: dict[str, Motif] = {m.name: m for m in _ALL}

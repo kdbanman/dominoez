@@ -5,7 +5,7 @@
 - `CONTEXT.md`: vocabulary.
 - `GUIDELINES.md`: dimensions, print limits, how to draw a motif.
 - `docs/adr/`: decisions that are hard to reverse.
-- Motif backlog: issue #2.
+- Motif backlog: issue #33 (the first round was #2).
 
 ## Building
 

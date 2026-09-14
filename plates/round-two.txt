@@ -1,0 +1,18 @@
+rainbow
+unicorn
+pickaxe
+headphones
+mushroom
+bunny_face
+paint_brush
+glasses
+fish
+gymnast
+saw
+swimmer
+kitty
+poo
+lego_brick
+plane
+book
+brim=4  # seventeen from backlog #33, brimmed so the tall pieces stay put

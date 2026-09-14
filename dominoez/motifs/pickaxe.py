@@ -1,8 +1,7 @@
-"""A Minecraft-style pickaxe: the classic 13 x 13 pixel sprite. A two-cell
-handle runs from the bottom left up to the top right, into the inside corner
-of a Gamma-shaped head whose two arms end in a one-cell tip curl. One-cell
-standing gaps separate the handle from both arms near the junction. The
-sprite is symmetric under (r, c) -> (12 - c, 12 - r)."""
+"""A Minecraft-style pickaxe, traced cell for cell from the game's 13 x 13
+item sprite: a three-cell-wide stair-stepped handle from the bottom left up
+to the top right, into a hooked head whose arms sweep left and down, with a
+one-cell standing gap between the handle and the lower arm."""
 
 from shapely import affinity
 from shapely.geometry import box
@@ -13,18 +12,18 @@ from ..motif import Motif
 CELL = 1.7  # mm per pixel; 13 cells is 22.1 mm across
 ROUND = 0.4  # mm; light open and close so the pixels stay crisp
 ROWS = [  # top row first; # is cut
-    "...##########",
-    "...##########",
-    "...#.....####",
-    "........##.##",
-    ".......##..##",
-    "......##...##",
-    ".....##....##",
-    "....##.....##",
-    "...##......##",
-    "..##......###",
-    ".##..........",
-    "##...........",
+    "....#####....",
+    "...#########.",
+    "....########.",
+    "........####.",
+    ".......######",
+    "......###.###",
+    ".....###..###",
+    "....###...###",
+    "...###....###",
+    "..###......#.",
+    ".###.........",
+    "###..........",
     "##...........",
 ]
 

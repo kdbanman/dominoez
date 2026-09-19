@@ -47,6 +47,18 @@ _Avoid_: Pixel art, bitmap
 Many dominoes laid out standing on one print bed and sliced as a single print.
 _Avoid_: Batch, tray, build plate, multi-print
 
+**Round**:
+A numbered backlog of motifs with one parent issue, one issue per category, and one issue per motif.
+_Avoid_: Backlog, milestone, phase
+
+**Batch**:
+The motifs from a few categories of a round that are drawn together and reviewed together, up to fifty. One branch, one review doc, one PR.
+_Avoid_: Sprint, chunk, wave
+
+**Review doc**:
+The single page that shows every render in a batch at the SVG stage, where each motif is approved by default and can be marked redo or drop with a note. The page copies its own state to the clipboard for pasting into chat.
+_Avoid_: Contact sheet, gallery, review artifact, approval page
+
 **Profile**:
 The one set of PrusaSlicer settings every domino is sliced with, for the one printer and filament we target. Captured from a print that came out well, never tuned by hand.
 _Avoid_: Slicer settings, print settings, config

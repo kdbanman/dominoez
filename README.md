@@ -5,7 +5,7 @@
 - `CONTEXT.md`: vocabulary.
 - `GUIDELINES.md`: dimensions, print limits, how to draw a motif.
 - `docs/adr/`: decisions that are hard to reverse.
-- Motif backlog: issue #33 (the first round was #2).
+- Motif backlog: issue #55, round three (rounds one and two were #2 and #33).
 
 ## Building
 
@@ -35,5 +35,5 @@ A motif that breaks a printability rule fails the build with the rule and where 
 
 1. Add `dominoez/motifs/<name>.py` exposing `motif = Motif(name=..., issue=..., draw=...)`. `draw` returns shapely geometry in motif coordinates: u right, v up, millimetres, drawn centred on the origin. The build moves it so its centre of mass sits in the middle of the top half of the face (see `GUIDELINES.md`, "Motif placement"). Helpers are in `dominoez/geometry.py`.
 2. Register it in `dominoez/motifs/__init__.py`.
-3. `uv run dominoez render <name>` and get the PNG approved.
-4. `uv run dominoez build <name>`, commit SVG, PNG, and STL together. CI slices it; download the run's `<name>.gcode` artifact.
+3. `uv run dominoez render <name>`. The PNG is reviewed in the batch's review doc, not on its own (`GUIDELINES.md`, "Review flow").
+4. Once the batch's review is clear, `uv run dominoez build <name>` and commit SVG, PNG, and STL together. CI slices it; download the run's `<name>.gcode` artifact.

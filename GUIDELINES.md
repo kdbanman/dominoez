@@ -104,9 +104,12 @@ The plate is one STL and prints layer by layer across every domino at once. Sequ
 
 ## Review flow
 
-1. Write the motif as a Python function returning shapely geometry.
-2. Build renders `svg/<name>.svg` and `png/<name>.png` showing the whole face at true scale: face outline, foot chamfer line, the motif box as a faint dashed rectangle, the motif in black.
-3. The PNG goes into chat for approval.
-4. On approval, build `stl/<name>.stl`. Commit SVG, PNG, and STL together in a PR that closes the motif's sub-issue under #2. CI slices it and publishes the gcode as an artifact.
+Motifs are reviewed a batch at a time, not one PNG at a time in chat. A batch is a few categories of the current round, up to fifty motifs, on one branch.
+
+1. Write each motif as a Python function returning shapely geometry. Up to three drawing agents work at once, each on its own categories; the registry in `dominoez/motifs/__init__.py` is merged by whoever runs the batch.
+2. `render` produces `svg/<name>.svg` and `png/<name>.png` for every motif in the batch: the whole face at true scale, face outline, foot chamfer line, the motif box as a faint dashed rectangle, the motif in black.
+3. Every render goes into one review doc (see `.claude/skills/review-doc/`). Each motif starts as approved; the reviewer marks redo or drop and leaves a note, then copies the page's state back into chat. Comment threads on the page are a second channel.
+4. Redo motifs are redrawn and the review doc is republished at the same link with the new render beside the old one. Repeat until nothing is marked redo.
+5. Only then build the STLs. Nothing from a batch is committed before its review is clear: one commit per motif or a few, SVG, PNG and STL together, then one PR for the batch that closes each motif's issue. Dropped motifs get their issue closed as not planned. A plate file in `plates/` for the batch goes in the same PR so CI slices it.
 
 CI rebuilds everything and fails if any committed output differs from what the code produces.

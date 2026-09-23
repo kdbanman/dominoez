@@ -27,7 +27,7 @@ Slicing uses `slicer/profile.ini`, a PrusaSlicer profile lifted from a print tha
 
 `plate` lays built dominoes out standing on one bed and writes `plate/<name>.stl`, then slices it to `plate/<name>.gcode` when prusa-slicer is on the path. Each motif name may be followed by a count like `x4`, and `*` means one of every motif. A token like `brim=4` sets the slicer's brim width in millimetres for that plate, over the profile's zero; the plate rows are spaced to leave room for it. With no names it makes every plate described in `plates/`, one file per plate listing the same tokens. The bed holds 6 by 12. Plate outputs are not committed.
 
-For a one-off plate without a slicer at hand, run the `plate` workflow by hand from the Actions tab with the same tokens (say `toilet cat_face dog_face train`) and download `plate-<name>.gcode` from that run. Plates in `plates/` are sliced on every CI run instead and uploaded the same way, `plate-all.gcode` today.
+For a one-off plate without a slicer at hand, run the `plate` workflow by hand from the Actions tab with the same tokens (say `toilet cat_face dog_face train`) and download `plate-<name>.gcode` from that run. Plates in `plates/` are sliced on every CI run instead and uploaded the same way, one per file there. The whole set no longer fits one bed, so there is no plate of everything.
 
 A motif that breaks a printability rule fails the build with the rule and where it broke. CI rebuilds and reslices everything, fails if the committed `stl/`, `svg/`, `png/`, or `gcode/blank.gcode` differ from what the code produces, and uploads each motif's gcode as an artifact named `<motif>.gcode`.
 

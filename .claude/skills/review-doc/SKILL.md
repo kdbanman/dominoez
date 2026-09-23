@@ -21,7 +21,7 @@ One page per batch. Highly visual, text minimal, lightly interactive. The review
 - Every card starts **approved**. Two buttons on the card: **redo** and **drop**. Clicking one selects it and shows a note field; clicking it again returns to approved. The card's border colour states its verdict.
 - A sticky bar with the counts (approved, redo, drop) and a link to the send box.
 - The send box at the bottom: one button, **Fill and copy**, that writes the state into a read-only textarea and copies it to the clipboard, with a status line saying it copied. A **Reset** button clears every verdict.
-- Every verdict and note is written to `localStorage` on change, under a key that includes the batch name, and restored on load. Wrap every storage access in try/catch and let the page work without it.
+- Every verdict and note is written to `localStorage` on change, under a key that includes the batch name and the round number, and restored on load, so a republished round starts clean instead of showing the previous round's marks. Wrap every storage access in try/catch and let the page work without it.
 - Comment threads on the artifact are a second feedback channel. When a thread is sent to Claude it wakes the session; read it with the Artifact tool's `comments` action and reply on the thread once acted on.
 
 ## The copied text

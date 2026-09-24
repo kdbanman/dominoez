@@ -75,6 +75,11 @@ The check erodes the engraved region by half the minimum channel width and confi
 - Strokes are centerlines buffered by half a width, so width is a parameter. Never draw a stroke as two parallel edges.
 - No detail inside detail. An eye is a dot or nothing.
 - Curves are fine. Sharp inside corners on standing material are fine. Sharp inside corners on the pocket floor round to the nozzle radius anyway.
+- The box is tighter than it looks. The centroid lands 18 mm above the face centre, so a motif can reach only 14 mm above its own centroid. A tall or top-heavy piece has to be drawn smaller or its weight moved down, not placed lower.
+- A finishing opening deletes any cut channel narrower than twice its radius. Subtract standing details (eyes, gill lines, seams) after the last opening, or keep every cut gap beside them wider than 2r.
+- A standing line inside a cut region is an island, so it must be 1.6 mm wide or wider, or run out to the standing face. A snail's spiral or a shell seam that floats at 1.3 mm vanishes.
+- Standing gaps read as features. A band with an empty standing region inside reads as a grin, not a shell. Fill the inside with cut layers or close the band.
+- Reference silhouettes beat adjectives. When two passes miss, trace the proportions of a stock icon (a snail is a big disc on a long foot with a rising head) rather than iterating on words.
 - Standing shapes may meet corner to corner (a hole in the cut touching its edge at one point). The build parts the two rings by a hair before extruding the pocket, so the mesh closes and the print is unchanged.
 
 ## Grid motifs

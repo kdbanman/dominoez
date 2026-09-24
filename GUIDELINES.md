@@ -79,8 +79,27 @@ The check erodes the engraved region by half the minimum channel width and confi
 - A finishing opening deletes any cut channel narrower than twice its radius. Subtract standing details (eyes, gill lines, seams) after the last opening, or keep every cut gap beside them wider than 2r.
 - A standing line inside a cut region is an island, so it must be 1.6 mm wide or wider, or run out to the standing face. A snail's spiral or a shell seam that floats at 1.3 mm vanishes.
 - Standing gaps read as features. A band with an empty standing region inside reads as a grin, not a shell. Fill the inside with cut layers or close the band.
-- Reference silhouettes beat adjectives. When two passes miss, trace the proportions of a stock icon (a snail is a big disc on a long foot with a rising head) rather than iterating on words.
+- Trace real sources; do not draw well-known shapes from memory. A flag leaf, a game sprite, a glyph, an emoji, a tool icon: fetch the actual asset and trace it, then adapt for the nozzle. In batch two of round three, hand-drawn versions of the maple leaf, the Minecraft sword and axe, the ampersand, the question mark and the music note each failed two or three reviews; traced ones passed first time. See "Tracing sources" below.
 - Standing shapes may meet corner to corner (a hole in the cut touching its edge at one point). The build parts the two rings by a hair before extruding the pocket, so the mesh closes and the print is unchanged.
+
+## Tracing sources
+
+When a motif is a shape people already know, trace it from the real thing:
+
+| Shape | Source | How |
+| --- | --- | --- |
+| Game sprite | The game's own texture (Minecraft item textures via the InventivetalentDev/minecraft-assets mirror) | Read the PNG with pillow, threshold alpha, embed the cell map as `ROWS` |
+| Glyph or letter | An OFL font from the google/fonts repository (Lora for a serif, Fredoka for thick and round) | fontTools glyph set and a pen, sample each curve, embed the contours |
+| Emoji-style icon | Twemoji (CC BY 4.0), OpenMoji (CC BY-SA 4.0), Noto Emoji (OFL) SVGs | Sample the path's beziers into polygons, even-odd fill |
+| Tool or object icon | Material Design Icons (Apache 2.0) SVGs | Same as emoji |
+| Flag or emblem | The Wikimedia Commons SVG | Same as emoji |
+
+Rules for a traced motif:
+
+- Embed the traced points in the module as constants and name the source and its licence in the docstring. The module must draw without the network.
+- Adapt for print after tracing, not while: thicken strokes under 1.2 mm with a small buffer before the opening, widen or fill counters narrower than 1.5 mm, and drop isolated single cells. Say what changed in a comment.
+- Fetch with urllib through the session proxy; `curl` to raw GitHub hosts can be blocked from an agent worktree.
+- Scale uniformly to fit the 14 mm reach above the centroid rather than editing the shape.
 
 ## Grid motifs
 
@@ -111,7 +130,7 @@ The plate is one STL and prints layer by layer across every domino at once. Sequ
 
 Motifs are reviewed a batch at a time, not one PNG at a time in chat. A batch is a few categories of the current round, up to fifty motifs, on one branch.
 
-1. Write each motif as a Python function returning shapely geometry. Up to three drawing agents work at once, each on its own categories; the registry in `dominoez/motifs/__init__.py` is merged by whoever runs the batch.
+1. Write each motif as a Python function returning shapely geometry. Up to three drawing agents work at once, each on its own categories; the registry in `dominoez/motifs/__init__.py` is merged by whoever runs the batch. The brief every agent gets says to trace well-known shapes from real sources (see "Tracing sources") rather than draw them from memory.
 2. `render` produces `svg/<name>.svg` and `png/<name>.png` for every motif in the batch: the whole face at true scale, face outline, foot chamfer line, the motif box as a faint dashed rectangle, the motif in black.
 3. Every render goes into one review doc (see `.claude/skills/review-doc/`). Each motif starts as approved; the reviewer marks redo or drop and leaves a note, then copies the page's state back into chat. Comment threads on the page are a second channel.
 4. Redo motifs are redrawn and the review doc is republished at the same link with the new render beside the old one. Repeat until nothing is marked redo.

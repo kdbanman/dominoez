@@ -8,4 +8,6 @@ Vendored copies of third-party Claude Code skills. Each directory keeps its upst
 - `unslop`: from [ericlitman/open-pstack](https://github.com/ericlitman/open-pstack), originally by Lauren Tan (poteto).
   Applies to all prose written in this repo: docs, commit messages, PR bodies, chat.
 
+- `review-doc`: ours. Builds the batch review page described in `GUIDELINES.md`, "Review flow".
+
 To refresh a skill, re-download its `SKILL.md` from the upstream path and commit the diff.

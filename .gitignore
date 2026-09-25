@@ -6,3 +6,4 @@ gcode/*
 !gcode/blank.gcode
 
 plate/*
+reel/plate/

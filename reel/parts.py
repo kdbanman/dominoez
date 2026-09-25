@@ -164,7 +164,20 @@ def chassis_world() -> Manifold:
         CrossSection.square((2 * BRIDGE_R, BRIDGE_FLAT)).translate([-BRIDGE_R, PIVOT_Z - BRIDGE_FLAT])
     bridge = yz_plate(bridge_cs - teardrop(PENCIL_HOLE, (0, PIVOT_Z)), 2 * XI, -XI)
     w = SHAFT_AF + SLOT_CLEAR
-    return left + right + bridge - yz_plate(tongue_slot(), w, GROOVE_X - w / 2)
+    return left + right + bridge + feet() - yz_plate(tongue_slot(), w, GROOVE_X - w / 2)
+
+
+def feet() -> Manifold:
+    """A 45 degree flare on the outside of each cheek's foot, doubling what stands on the bed
+    under a tall part. Outside only: the wheel's rim is inside."""
+    f = FOOT_FLARE
+    pad = CrossSection([[(0, 0), (f, 0), (0, f)]])  # (outward, up)
+    out = []
+    for side in (-1, 1):
+        m = pad.extrude(2 * FOOT_HALF).translate([0, 0, -FOOT_HALF])  # (u, v, w) = (outward, up, y)
+        m = place(m, [[side, 0, 0], [0, 0, 1], [0, 1, 0]], [side * XO, 0, FOOT_Z])
+        out.append(m)
+    return out[0] + out[1]
 
 
 def chassis_print() -> Manifold:

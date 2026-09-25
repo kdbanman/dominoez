@@ -6,6 +6,7 @@ from pathlib import Path
 from manifold3d import Manifold
 
 from . import parts as P
+from .plates import placed_views
 from .render import render, save
 from .spec import (BOARD_HOLE, BOARD_T, BOARD_Z, CRANK, CROSS_Z, FLANGE_R, FLOOR_R, GROOVE_X, LINE_N,
                    LOADED_TILT, LOCK_R, PIVOT_DROP, PIVOT_Z, TONGUE_R, WHEEL_W, XI, XO)
@@ -122,3 +123,6 @@ def render_all(out: Path):
     save(out, "16_tube_crank", render([("axle_tube", P.tube_print()),
                                        ("crank", P.crank_print().translate([40, -40, 0]))], 220, 35,
                                       "Axle tube (head down) and crank (flat), as printed", size=(900, 700)))
+    save(out, "17_test_fit_plate", render(placed_views("test_fit"), 200, 50,
+                                          "Test-fit plate: stubs and coupons for every fit", size=(1100, 650)))
+    save(out, "18_full_plate", render(placed_views("full"), 200, 50, "Full plate: all eight parts", size=(1100, 800)))

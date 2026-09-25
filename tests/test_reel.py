@@ -6,6 +6,7 @@ import numpy as np
 import pytest
 
 from reel import parts as P
+from reel import plates
 from reel import spec as S
 from reel import views
 
@@ -73,3 +74,10 @@ def test_the_tube_threads_through():
 def test_shaft_fits_the_shelf_hole():
     corners = S.SHAFT_AF / np.cos(np.radians(22.5))
     assert corners < S.BOARD_HOLE
+
+
+@pytest.mark.parametrize("name", list(plates.PLATES))
+def test_plate_fits_the_bed(name):
+    builders, _ = plates.PLATES[name]
+    placed = plates.arrange({n: f() for n, f in builders.items()})  # raises if it overflows
+    assert set(placed) == set(builders)

@@ -57,6 +57,7 @@ SLOT_CLEAR = 0.8         # tongue slot, on width
 SWING = 65.0             # the reel's swing on the hinge pin either side of vertical
 FOOT_HALF = 40.0         # half-width of each cheek's foot
 FOOT_Z = -26.0
+FOOT_FLARE = 4.0         # 45 degree flare outside each foot
 WINDOW = (150.0, 210.0)  # degrees on the lock circle; shows holes at 162 and 198 when 90 is under the pin
 WINDOW_W = 11.0
 

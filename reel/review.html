@@ -1,0 +1,240 @@
+<title>Lockable Line Reel</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@500;600&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style>
+:root {
+  --paper: #f4f5f8;
+  --sheet: #ffffff;
+  --ink: #1d2130;
+  --muted: #5d6275;
+  --rule: #d8dbe5;
+  --accent: #9c4fb3;
+  --accent-soft: #f1e4f6;
+  --blue: #3565c9;
+  --frame: #fbfaf7;
+  --display: "Barlow Condensed", "Arial Narrow", "Roboto Condensed", sans-serif;
+  --body: "IBM Plex Sans", "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  --mono: "IBM Plex Mono", ui-monospace, "SFMono-Regular", Menlo, Consolas, monospace;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    color-scheme: dark;
+    --paper: #13151c;
+    --sheet: #1b1e27;
+    --ink: #e6e8ef;
+    --muted: #a2a7b8;
+    --rule: #2f3341;
+    --accent: #d596e6;
+    --accent-soft: #2e2236;
+    --blue: #8aa9f0;
+  }
+}
+:root[data-theme="dark"] {
+  color-scheme: dark;
+  --paper: #13151c;
+  --sheet: #1b1e27;
+  --ink: #e6e8ef;
+  --muted: #a2a7b8;
+  --rule: #2f3341;
+  --accent: #d596e6;
+  --accent-soft: #2e2236;
+  --blue: #8aa9f0;
+}
+* { box-sizing: border-box; }
+body {
+  background: var(--paper);
+  color: var(--ink);
+  font: 16px/1.55 var(--body);
+  padding-inline: 20px;
+  padding-block: 32px 64px;
+}
+.wrap { max-width: 1120px; margin: 0 auto; display: grid; gap: 48px; }
+h1, h2 { font-family: var(--display); font-weight: 600; letter-spacing: 0.01em; text-wrap: balance; margin: 0; }
+h1 { font-size: clamp(2.4rem, 6vw, 3.6rem); line-height: 1; }
+h2 { font-size: 1.9rem; line-height: 1.1; }
+p { margin: 0; max-width: 66ch; }
+.lede { color: var(--muted); font-size: 1.08rem; }
+header { display: grid; gap: 20px; }
+
+/* a drawing's title block */
+.titleblock {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+  border: 1.5px solid var(--ink);
+  background: var(--sheet);
+}
+.titleblock div { padding: 10px 14px; border-right: 1px solid var(--rule); border-bottom: 1px solid var(--rule); display: grid; gap: 2px; }
+.titleblock dt { font: 500 0.7rem/1.2 var(--mono); text-transform: uppercase; letter-spacing: 0.08em; color: var(--muted); }
+.titleblock dd { margin: 0; font: 500 1.02rem/1.3 var(--mono); font-variant-numeric: tabular-nums; }
+
+section { display: grid; gap: 18px; }
+.sechead { display: grid; gap: 8px; border-top: 1.5px solid var(--ink); padding-top: 14px; }
+.sechead .tag { font: 500 0.72rem/1 var(--mono); text-transform: uppercase; letter-spacing: 0.1em; color: var(--accent); }
+
+.figs { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 20px; }
+.figs.three { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+@media (max-width: 760px) { .figs, .figs.three { grid-template-columns: 1fr; } }
+figure { margin: 0; display: grid; gap: 8px; align-content: start; }
+figure a { display: block; border: 1px solid var(--rule); background: var(--frame); }
+figure a:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+figure img { display: block; width: 100%; height: auto; }
+figcaption { font-size: 0.92rem; color: var(--muted); max-width: 60ch; }
+figcaption b { color: var(--ink); font-weight: 600; }
+
+ul.points { margin: 0; padding-left: 1.1em; display: grid; gap: 6px; max-width: 70ch; }
+
+.tablewrap { overflow-x: auto; border: 1px solid var(--rule); background: var(--sheet); }
+table { border-collapse: collapse; width: 100%; font-size: 0.95rem; }
+th, td { text-align: left; padding: 9px 14px; border-bottom: 1px solid var(--rule); vertical-align: top; }
+th { font: 500 0.72rem/1.2 var(--mono); text-transform: uppercase; letter-spacing: 0.08em; color: var(--muted); }
+td.num { font-family: var(--mono); font-variant-numeric: tabular-nums; white-space: nowrap; }
+tr:last-child td { border-bottom: 0; }
+
+.notes { background: var(--sheet); border: 1.5px solid var(--accent); padding: 18px; display: grid; gap: 12px; }
+.notes label { font-weight: 600; }
+.notes textarea { width: 100%; min-height: 140px; font: 15px/1.5 var(--body); color: var(--ink); background: var(--paper); border: 1px solid var(--rule); padding: 10px; resize: vertical; }
+.notes textarea:focus-visible { outline: 2px solid var(--accent); outline-offset: 1px; }
+.row { display: flex; flex-wrap: wrap; gap: 12px; align-items: center; }
+button {
+  font: 600 0.95rem var(--body); color: var(--sheet); background: var(--accent);
+  border: 0; padding: 10px 18px; cursor: pointer;
+}
+button:focus-visible { outline: 2px solid var(--ink); outline-offset: 2px; }
+.status { color: var(--muted); font-size: 0.9rem; }
+</style>
+
+<div class="wrap">
+  <header>
+    <h1>Lockable Line Reel</h1>
+    <p class="lede">A reel for 50 lb braid that hangs from a 1/2" hole in a 3/4" plywood shelf, holds 10 lb, and locks with a pin every 36°. These renders come straight from the part code on the branch. Check the shape before the test-fit plate gets printed.</p>
+    <dl class="titleblock">
+      <div><dt>Load</dt><dd>10 lb · 44.5 N</dd></div>
+      <div><dt>Wheel</dt><dd>Ø100 · groove Ø70</dd></div>
+      <div><dt>Crank force</dt><dd>31 N at 50 mm</dd></div>
+      <div><dt>Loaded lean</dt><dd>30° on hinge</dd></div>
+      <div><dt>Parts</dt><dd>8 printed</dd></div>
+      <div><dt>Material</dt><dd>PLA · no supports</dd></div>
+      <div><dt>Shelf</dt><dd>19 mm · Ø12.7 hole</dd></div>
+      <div><dt>Lock holes</dt><dd>10 × Ø8.4</dd></div>
+    </dl>
+  </header>
+
+  <section>
+    <div class="sechead">
+      <span class="tag">Hanging</span>
+      <h2>Under the shelf, unloaded and loaded</h2>
+      <p>The hanger shaft turns freely in the shelf's hole, and the chassis swings on the hinge pin under it. Together they let the reel face and lean toward any pull, so the shaft is never bent. A load hanging straight down tips the reel 30°, which puts the line right under the hinge pin.</p>
+    </div>
+    <div class="figs">
+      <figure><a href="png/01_hanging.png"><img src="png/01_hanging.png" alt="Reel hanging under a translucent plywood shelf, unloaded" width="1350" height="1050"></a>
+        <figcaption><b>Unloaded.</b> The cross pin rests on the shelf, and the shaft carries the whole reel.</figcaption></figure>
+      <figure><a href="png/03_loaded.png"><img src="png/03_loaded.png" alt="Reel tilted 30 degrees on its hinge pin with the line hanging straight down" width="1350" height="1050"></a>
+        <figcaption><b>Loaded straight down.</b> The reel leans until the line points at the hinge pin.</figcaption></figure>
+      <figure><a href="png/04_front.png"><img src="png/04_front.png" alt="Front elevation with dimensions" width="1350" height="1105"></a>
+        <figcaption><b>Front.</b> Axle 88 below the shelf, hinge pin 18 below it. The lock pin is on top and the window beside the axle.</figcaption></figure>
+      <figure><a href="png/05_front_loaded.png"><img src="png/05_front_loaded.png" alt="Front elevation tilted 30 degrees" width="1350" height="1105"></a>
+        <figcaption><b>Front, loaded.</b> The bridge is round about the pin, so the top of the chassis stays clear of the shelf as it swings.</figcaption></figure>
+      <figure><a href="png/06_side.png"><img src="png/06_side.png" alt="Side elevation showing the cheeks, wheel and crank" width="1350" height="1350"></a>
+        <figcaption><b>Side.</b> 40 across the cheeks. The shaft sits over the groove, 7 mm off the wheel's middle.</figcaption></figure>
+      <figure><a href="png/02_crank_side.png"><img src="png/02_crank_side.png" alt="View from the crank side" width="1350" height="1050"></a>
+        <figcaption><b>Crank side.</b> The crank's hex slides into the axle tube and pulls out again.</figcaption></figure>
+    </div>
+  </section>
+
+  <section>
+    <div class="sechead">
+      <span class="tag">Inside</span>
+      <h2>Wheel, lock, and hinge</h2>
+      <p>The wheel is an open cup. The line goes through a small hole in the groove floor and is knotted inside. The lock pin passes through both cheeks and one hole in the wheel's 5 mm web. The lock and hinge holes are 8.4 mm, so a round pencil crayon can stand in for either pin.</p>
+    </div>
+    <div class="figs">
+      <figure><a href="png/09_section.png"><img src="png/09_section.png" alt="Section through the axle showing every part cut" width="1350" height="1500"></a>
+        <figcaption><b>Section through the axle.</b> Groove floor Ø70, 15 deep, wheel 26 wide. The axle tube's hex drives the wheel. The hinge pin goes through the tongue at the top.</figcaption></figure>
+      <figure><a href="png/10_hinge.png"><img src="png/10_hinge.png" alt="Cutaway of the hinge: tongue on a pin inside the round bridge" width="1350" height="1200"></a>
+        <figcaption><b>The hinge.</b> The shaft ends in a flat tongue that swings in a slot through the bridge, about 65° either way.</figcaption></figure>
+      <figure><a href="png/08_exploded.png"><img src="png/08_exploded.png" alt="Exploded view of the eight printed parts" width="1350" height="1215"></a>
+        <figcaption><b>Exploded.</b> Chassis, wheel, axle tube, hanger shaft, crank, and three pins.</figcaption></figure>
+      <figure><a href="png/07_top.png"><img src="png/07_top.png" alt="Top view through a translucent shelf" width="1350" height="1050"></a>
+        <figcaption><b>Top.</b> The cross pin across the shaft, above the shelf.</figcaption></figure>
+    </div>
+  </section>
+
+  <section>
+    <div class="sechead">
+      <span class="tag">On the bed</span>
+      <h2>Every part as it prints</h2>
+      <p>The only overhang wider than 45° is the flat underside of the bridge, which spans 28 mm between the cheeks. The chassis's horizontal holes have pointed tops. The shaft prints on its side, so its layers run the length of the pull.</p>
+    </div>
+    <div class="figs">
+      <figure><a href="png/11_bed.png"><img src="png/11_bed.png" alt="All eight parts laid out as printed" width="1350" height="982"></a>
+        <figcaption><b>The whole set.</b></figcaption></figure>
+      <figure><a href="png/12_chassis_print.png"><img src="png/12_chassis_print.png" alt="Chassis standing upright on its feet" width="1350" height="1050"></a>
+        <figcaption><b>Chassis</b>, upright on its two feet.</figcaption></figure>
+      <figure><a href="png/13_wheel_print.png"><img src="png/13_wheel_print.png" alt="Wheel as printed, cup open on top" width="1350" height="1050"></a>
+        <figcaption><b>Wheel</b>, flat flange down, cup up. The groove's upper side is a 45° slope.</figcaption></figure>
+      <figure><a href="png/14_wheel_under.png"><img src="png/14_wheel_under.png" alt="Wheel seen from underneath" width="1350" height="1050"></a>
+        <figcaption><b>Wheel, underneath</b>: the flat face on the bed, with the ten lock holes and the hex bore.</figcaption></figure>
+      <figure><a href="png/16_tube_crank.png"><img src="png/16_tube_crank.png" alt="Axle tube standing on its head, crank lying flat" width="1350" height="1050"></a>
+        <figcaption><b>Axle tube</b> head down, with a slotted snap lip on top. <b>Crank</b> flat.</figcaption></figure>
+      <figure><a href="png/15_pins.png"><img src="png/15_pins.png" alt="Three pins lying flat" width="1350" height="900"></a>
+        <figcaption><b>Pins.</b> Lock 7.8 plain, hinge 7.8 with a snap tip, cross 6.2 with a snap tip.</figcaption></figure>
+    </div>
+  </section>
+
+  <section>
+    <div class="sechead">
+      <span class="tag">Fits</span>
+      <h2>Clearances the test-fit plate will settle</h2>
+      <p>First guesses for your CR-10 Smart Pro. After this review, the test-fit plate prints a slice of each fit so these can be tuned before the full print.</p>
+    </div>
+    <div class="tablewrap">
+      <table>
+        <thead><tr><th>Fit</th><th>Sizes</th><th>Clearance</th></tr></thead>
+        <tbody>
+          <tr><td>Axle tube bearings in the cheeks</td><td class="num">Ø24 in Ø24.6 · Ø20 in Ø20.6</td><td class="num">0.6 on Ø</td></tr>
+          <tr><td>Tube hex in the wheel</td><td class="num">21.0 in 21.3 AF</td><td class="num">0.3</td></tr>
+          <tr><td>Crank hex in the tube</td><td class="num">11.7 in 12.0 AF</td><td class="num">0.3</td></tr>
+          <tr><td>Tongue in its slot</td><td class="num">11.4 in 12.2</td><td class="num">0.8</td></tr>
+          <tr><td>Lock and hinge pins</td><td class="num">Ø7.8 in Ø8.4</td><td class="num">0.6 on Ø</td></tr>
+          <tr><td>Cross pin</td><td class="num">Ø6.2 in Ø6.6</td><td class="num">0.4 on Ø</td></tr>
+          <tr><td>Shaft in the shelf hole</td><td class="num">12.34 corners in Ø12.7</td><td class="num">0.36</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <section class="notes">
+    <label for="review-notes">Your notes</label>
+    <p class="status">Anything to change before the test-fit plate? Write it here, copy it, and paste it into the chat. Notes stay in this browser only.</p>
+    <textarea id="review-notes" placeholder="e.g. window looks too small; crank knob longer; all good"></textarea>
+    <div class="row">
+      <button type="button" id="copy-notes">Copy notes</button>
+      <span class="status" id="copy-status" role="status"></span>
+    </div>
+  </section>
+</div>
+
+<script>
+(function () {
+  var box = document.getElementById("review-notes");
+  var status = document.getElementById("copy-status");
+  var KEY = "reel-review-notes";
+  try { var saved = localStorage.getItem(KEY); if (saved) box.value = saved; } catch (e) {}
+  box.addEventListener("input", function () {
+    try { localStorage.setItem(KEY, box.value); } catch (e) {}
+  });
+  document.getElementById("copy-notes").addEventListener("click", function () {
+    var text = "Reel review notes:\n" + (box.value.trim() || "all good");
+    function fallback() {
+      box.focus(); box.select();
+      status.textContent = "Selected. Press Ctrl+C or Cmd+C to copy.";
+    }
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+      navigator.clipboard.writeText(text).then(function () {
+        status.textContent = "Copied. Paste it into the chat.";
+      }, fallback);
+    } else { fallback(); }
+  });
+})();
+</script>

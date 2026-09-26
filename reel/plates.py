@@ -18,14 +18,11 @@ from . import parts as P
 from .spec import (BEAR_CLEAR, BEAR_HEAD, BEAR_SNAP, BOARD_HOLE, CHEEK_T, CRANK_HEX_AF, CROSS_HOLE, PENCIL_HOLE,
                    WHEEL_HEX_AF)
 
-GAP = 12.0         # between parts on the bed, room for a 4 mm brim each side
+GAP = 8.0          # between parts on the bed
 BED_USE = 270.0    # the 290 bed less a 10 mm margin each side
 
 # The full plate carries 10 lb; the domino profile's 3 walls and 10% grid are for dominoes.
 STRONG = {"perimeters": "4", "fill_density": "30%", "fill_pattern": "gyroid"}
-# Without it PrusaSlicer warns of low bed adhesion: the chassis stands 111 tall on its feet,
-# the shaft lies on a 4.7 wide flat.
-BRIM = {"brim_width": "4"}
 
 
 # Size ladders: three of a fit side by side, marked by 1, 2 or 3 notches.
@@ -173,4 +170,4 @@ def placed_views(name: str) -> list[tuple[str, str, Manifold]]:
     return [(n, COLOUR.get(n, n), m) for n, m in arrange({n: f() for n, f in builders.items()}).items()]
 
 
-PLATES = {"test_fit": (TEST_FIT, BRIM), "full": (FULL, {**STRONG, **BRIM})}  # name: (parts, slicer overrides)
+PLATES = {"test_fit": (TEST_FIT, {}), "full": (FULL, STRONG)}  # name: (parts, slicer overrides)

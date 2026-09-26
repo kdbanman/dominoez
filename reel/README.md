@@ -29,14 +29,14 @@ Every dimension is in `reel/spec.py`. The parts are built in `reel/parts.py`.
 | hanger shaft | on its side, so its layers run the length of the pull |
 | crank, pins | flat |
 
-Both plates slice with the domino profile plus a 4 mm brim. Without the brim, PrusaSlicer warns of low bed adhesion: the chassis stands 111 tall. The full plate also gets 4 perimeters and 30% gyroid infill, since it carries the load. CI uploads the gcode as `reel-test_fit.gcode` and `reel-full.gcode`.
+Both plates slice with the domino profile and no brim. The full plate also gets 4 perimeters and 30% gyroid infill, since it carries the load. CI uploads the gcode as `reel-test_fit.gcode` and `reel-full.gcode`.
 
 | Plate | What's on it | Time | PLA |
 | --- | --- | --- | --- |
-| test_fit | a cheek strip with both tube holes and three pin holes; a ladder bar with three wheel hexes, three pin holes and three cross-pin holes; a short axle tube; the hanger shaft; the hinge and cross pins; three crank-hex stubs; a nominal 1/2" hole. `reel/fit_map.html` says what goes into what. | 4h 49m | 41 g |
-| full | all eight parts | 17h 25m | 167 g |
+| test_fit | a cheek strip with both tube holes and three pin holes; a ladder bar with three wheel hexes, three pin holes and three cross-pin holes; a short axle tube; the hanger shaft; the hinge and cross pins; three crank-hex stubs; a nominal 1/2" hole. `reel/fit_map.html` says what goes into what. | 4h 38m | 40 g |
+| full | all eight parts | 17h 19m | 165 g |
 
-The only slicer warning left on the full plate is "long bridging extrusions", which is the bridge's 28 mm underside.
+PrusaSlicer warns of "low bed adhesion" on both plates: the chassis stands 111 tall on its feet, the cheek strip stands on a 1 mm foot, and the shaft lies on a narrow flat. A 4 mm brim silences it; `brim_width` in `plates.py` puts one back. The full plate also warns of "long bridging extrusions", which is the bridge's 28 mm underside.
 
 Assembly: shaft's tongue into the slot and hinge pin through → wheel between the cheeks → axle tube through from the head side until the lip clicks → tie the line through the anchor hole → shaft up through the shelf, cross pin through above.
 

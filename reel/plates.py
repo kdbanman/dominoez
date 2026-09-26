@@ -15,7 +15,7 @@ import trimesh
 from manifold3d import CrossSection, Manifold, OpType
 
 from . import parts as P
-from .spec import (BEAR_CLEAR, BEAR_HEAD, BEAR_SNAP, BOARD_HOLE, CHEEK_T, CRANK_HEX_AF, PENCIL_HOLE, PIVOT_Z,
+from .spec import (BEAR_CLEAR, BEAR_HEAD, BEAR_SNAP, BOARD_HOLE, CHEEK_T, CRANK_HEX_AF, CROSS_HOLE, PENCIL_HOLE,
                    WHEEL_HEX_AF)
 
 GAP = 12.0         # between parts on the bed, room for a 4 mm brim each side
@@ -28,40 +28,60 @@ STRONG = {"perimeters": "4", "fill_density": "30%", "fill_pattern": "gyroid"}
 BRIM = {"brim_width": "4"}
 
 
+# Size ladders: three of a fit side by side, marked by 1, 2 or 3 notches.
+# One notch is 0.2 tighter than the design, two is the design, three is 0.2 looser.
+LADDER = (-0.2, 0.0, 0.2)
+
+
+def notches(n, at, pitch=3.0, r=1.0) -> CrossSection:
+    """n half-round notches centred on `at` along an edge that runs in the first axis."""
+    x0 = at[0] - pitch * (n - 1) / 2
+    return CrossSection.compose([CrossSection.circle(r, 16).translate([x0 + pitch * i, at[1]]) for i in range(n)])
+
+
 def cheek_coupon() -> Manifold:
-    """A strip of cheek with both axle-tube holes and a pin hole, standing upright like the
-    chassis on a small foot. Tests the tube's bearings and snap lip, and a pin through a cheek."""
-    holes = [(BEAR_HEAD + BEAR_CLEAR, -19.0), (BEAR_SNAP + BEAR_CLEAR, 8.5), (PENCIL_HOLE, 26.0)]
-    w, h, zc = 66.0, 35.0, 15.0  # tall enough for the 24.6 hole and its pointed top
-    plate = CrossSection.square((w, h)).translate([-33.0, 0])
-    for d, y in holes:
-        plate = plate - P.teardrop(d, (y, zc))
+    """A strip of cheek standing upright like the chassis on a small foot: both axle-tube
+    bearing holes, and a ladder of three lock/hinge pin holes. Tests the tube's bearings and
+    snap lip, and a pin or pencil crayon through a cheek."""
+    w, h, zc = 96.0, 35.0, 15.0  # tall enough for the big hole and its pointed top
+    x0 = -w / 2
+    plate = CrossSection.square((w, h)).translate([x0, 0])
+    plate = plate - P.teardrop(BEAR_HEAD + BEAR_CLEAR, (x0 + 16, zc)) - P.teardrop(BEAR_SNAP + BEAR_CLEAR, (x0 + 44, zc))
+    for i, extra in enumerate(LADDER):
+        x = x0 + 64 + 12 * i
+        plate = plate - P.teardrop(PENCIL_HOLE + extra, (x, zc)) - notches(i + 1, (x, h))
     slab = P.yz_plate(plate, CHEEK_T, -CHEEK_T / 2)
-    foot = Manifold.cube([CHEEK_T + 8, w, 1.0]).translate([-CHEEK_T / 2 - 4, -33.0, 0])
+    foot = Manifold.cube([CHEEK_T + 8, w, 1.0]).translate([-CHEEK_T / 2 - 4, x0, 0])
     return slab + foot
 
 
-def hub_coupon() -> Manifold:
-    """The wheel's hex bore in a thin ring, plus one lock hole in a tab, printed flat like the
-    wheel: the tube's hex in the wheel, and a pin or pencil crayon in a wheel hole."""
-    ring = Manifold.cylinder(4, 15.5, 15.5, P.SEG) - P.z_prism(P.hexagon(WHEEL_HEX_AF), -1, 5)
-    tab = Manifold.cube([16, 16, 4]).translate([14, -8, 0]) - \
-        Manifold.cylinder(6, PENCIL_HOLE / 2, PENCIL_HOLE / 2, 48).translate([23, 0, -1])
-    return ring + tab
+def ladder_bar() -> Manifold:
+    """Printed flat like the wheel and the lying shaft, so its holes are vertical like theirs:
+    three of the wheel's hex bore, three lock/hinge pin holes, three cross-pin holes."""
+    col, w, h = 30.0, 90.0, 46.0
+    bar = CrossSection.square((w, h)).translate([-w / 2, 0])
+    for i, extra in enumerate(LADDER):
+        x = -w / 2 + col / 2 + col * i
+        bar = bar - P.hex_hole(WHEEL_HEX_AF + extra).translate([x, 30]) - notches(i + 1, (x, h))
+        bar = bar - CrossSection.circle((PENCIL_HOLE + extra) / 2, 48).translate([x - 7, 8])
+        bar = bar - CrossSection.circle((CROSS_HOLE + extra) / 2, 48).translate([x + 7, 8])
+    return bar.extrude(3)
 
 
-def crank_stub() -> Manifold:
-    """20 mm of the crank's hex rod on a small tab, lying flat like the crank."""
-    af = CRANK_HEX_AF
-    rod = CrossSection([P.hexagon(af)]).extrude(20).transform(
-        np.array([[0, 0, 1, 4], [1, 0, 0, 0], [0, 1, 0, af / 2]], float))
-    return rod + Manifold.cube([4, 18, af]).translate([0, -9, 0])
+def crank_stub(i) -> Manifold:
+    """14 mm of the crank's hex rod on a notched tab, lying flat like the crank. Stub i is
+    LADDER[i] thinner, since it is the male side."""
+    af = CRANK_HEX_AF - LADDER[i]
+    rod = P.hexagon(af).extrude(14).transform(np.array([[0, 0, 1, 4], [1, 0, 0, 0], [0, 1, 0, af / 2]], float))
+    tab = CrossSection.square((4, 18)).translate([0, -9]) - notches(i + 1, (0, 0), pitch=4.0).rotate(90)
+    tab = P.place(tab.extrude(af), [[1, 0, 0], [0, 1, 0], [0, 0, 1]], [0, 0, 0])
+    return rod + tab
 
 
 def tube_stub() -> Manifold:
     """The axle tube cut short, head down like the real one: head, the head-side bearing,
     8 mm of the drive hex, the snap-side bearing and its slotted lip, and the crank's socket.
-    Each piece meets its coupon: the bearings and lip in the cheek strip, the hex in the hub."""
+    Each piece meets its coupon: the bearings and lip in the cheek strip, the hex in the bar."""
     t = P.z_cyl(P.TUBE_HEAD_D, 0, P.TUBE_HEAD_T)
     z = P.TUBE_HEAD_T
     t = t + P.z_cyl(BEAR_HEAD, z, z + CHEEK_T + 1)
@@ -70,9 +90,8 @@ def tube_stub() -> Manifold:
     z += 8
     t = t + P.z_cyl(BEAR_SNAP, z, z + CHEEK_T + 0.5)
     z += CHEEK_T + 0.5
-    r = BEAR_SNAP / 2
-    t = t + Manifold.cylinder(2.0, r + 0.8, r - 0.3, P.SEG).translate([0, 0, z])
-    t = t - P.z_prism(P.hexagon(P.BORE_HEX_AF), -1, z + 5)
+    t = t + P.snap_lip(z)
+    t = t - P.z_prism(P.hex_hole(P.BORE_HEX_AF), -1, z + 5)
     for ang in (0, 90):
         t = t - Manifold.cube([40, 2.0, 16], center=True).rotate([0, 0, ang]).translate([0, 0, z + 2])
     return t
@@ -86,12 +105,14 @@ def shelf_coupon() -> Manifold:
 
 TEST_FIT = {
     "cheek": cheek_coupon,
-    "hub": hub_coupon,
+    "ladder_bar": ladder_bar,
     "tube_stub": tube_stub,
     "hanger_shaft": P.PRINTED["hanger_shaft"],
     "hinge_pin": P.PRINTED["hinge_pin"],
     "cross_pin": P.PRINTED["cross_pin"],
-    "crank_stub": crank_stub,
+    "crank_stub_1": lambda: crank_stub(0),
+    "crank_stub_2": lambda: crank_stub(1),
+    "crank_stub_3": lambda: crank_stub(2),
     "shelf_hole": shelf_coupon,
 }
 
@@ -142,10 +163,14 @@ def write_plate(name: str, builders: dict, out: Path) -> Path:
     return path
 
 
-def placed_views(name: str) -> list[tuple[str, Manifold]]:
+COLOUR = {"cheek": "chassis", "ladder_bar": "wheel", "tube_stub": "axle_tube", "shelf_hole": "board",
+          "crank_stub_1": "crank", "crank_stub_2": "crank", "crank_stub_3": "crank"}
+
+
+def placed_views(name: str) -> list[tuple[str, str, Manifold]]:
+    """(piece, render colour, placed solid) for every piece on a plate."""
     builders = TEST_FIT if name == "test_fit" else FULL
-    colour = {"cheek": "chassis", "hub": "wheel", "tube_stub": "axle_tube", "crank_stub": "crank", "shelf_hole": "board"}
-    return [(colour.get(n, n), m) for n, m in arrange({n: f() for n, f in builders.items()}).items()]
+    return [(n, COLOUR.get(n, n), m) for n, m in arrange({n: f() for n, f in builders.items()}).items()]
 
 
 PLATES = {"test_fit": (TEST_FIT, BRIM), "full": (FULL, {**STRONG, **BRIM})}  # name: (parts, slicer overrides)

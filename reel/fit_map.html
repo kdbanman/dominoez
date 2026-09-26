@@ -1,0 +1,261 @@
+<title>Reel Test-Fit Map</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@500;600&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style>
+:root {
+  --paper: #f4f5f8;
+  --sheet: #ffffff;
+  --ink: #1d2130;
+  --muted: #5d6275;
+  --rule: #d8dbe5;
+  --accent: #9c4fb3;
+  --frame: #fbfaf7;
+  --display: "Barlow Condensed", "Arial Narrow", "Roboto Condensed", sans-serif;
+  --body: "IBM Plex Sans", "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  --mono: "IBM Plex Mono", ui-monospace, "SFMono-Regular", Menlo, Consolas, monospace;
+  /* part colours, the same as in the renders */
+  --c-chassis: #d58ee6;
+  --c-wheel: #3f72dd;
+  --c-tube: #6aa84f;
+  --c-shaft: #b06ad0;
+  --c-pin: #f0a030;
+  --c-hinge: #e07b20;
+  --c-crank: #e0c040;
+  --c-board: #c9a36b;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    color-scheme: dark;
+    --paper: #13151c; --sheet: #1b1e27; --ink: #e6e8ef; --muted: #a2a7b8; --rule: #2f3341; --accent: #d596e6;
+  }
+}
+:root[data-theme="dark"] {
+  color-scheme: dark;
+  --paper: #13151c; --sheet: #1b1e27; --ink: #e6e8ef; --muted: #a2a7b8; --rule: #2f3341; --accent: #d596e6;
+}
+* { box-sizing: border-box; }
+body { background: var(--paper); color: var(--ink); font: 16px/1.55 var(--body); padding-inline: 20px; padding-block: 32px 64px; }
+.wrap { max-width: 1080px; margin: 0 auto; display: grid; gap: 44px; }
+h1, h2 { font-family: var(--display); font-weight: 600; letter-spacing: 0.01em; text-wrap: balance; margin: 0; }
+h1 { font-size: clamp(2.3rem, 6vw, 3.4rem); line-height: 1; }
+h2 { font-size: 1.8rem; line-height: 1.1; }
+p { margin: 0; max-width: 68ch; }
+.lede { color: var(--muted); font-size: 1.06rem; }
+header, section { display: grid; gap: 16px; }
+.sechead { display: grid; gap: 8px; border-top: 1.5px solid var(--ink); padding-top: 14px; }
+.tag { font: 500 0.72rem/1 var(--mono); text-transform: uppercase; letter-spacing: 0.1em; color: var(--accent); }
+.mono { font-family: var(--mono); font-variant-numeric: tabular-nums; }
+
+.changes { margin: 0; padding-left: 1.1em; display: grid; gap: 6px; max-width: 72ch; }
+
+figure { margin: 0; display: grid; gap: 8px; }
+figure img { display: block; width: 100%; height: auto; border: 1px solid var(--rule); background: var(--frame); }
+figcaption { font-size: 0.92rem; color: var(--muted); max-width: 70ch; }
+figcaption b { color: var(--ink); }
+.pair { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 20px; }
+@media (max-width: 760px) { .pair { grid-template-columns: 1fr; } }
+
+/* the fit map */
+.key { display: flex; flex-wrap: wrap; gap: 8px 20px; font-size: 0.9rem; color: var(--muted); }
+.key span { display: inline-flex; align-items: center; gap: 8px; }
+.ladder-mark { font: 600 0.78rem/1 var(--mono); border: 1.5px solid currentColor; padding: 2px 6px; color: var(--accent); }
+.map { display: grid; gap: 0; border: 1.5px solid var(--ink); background: var(--sheet); }
+.group { font: 500 0.72rem/1.2 var(--mono); text-transform: uppercase; letter-spacing: 0.08em; color: var(--muted); padding: 12px 16px 4px; border-top: 1px solid var(--rule); }
+.group:first-child { border-top: 0; }
+.fit { display: grid; grid-template-columns: minmax(0, 1fr) 70px minmax(0, 1fr) minmax(0, 1.1fr); align-items: center; gap: 12px; padding: 10px 16px; }
+.fit + .fit { border-top: 1px dashed var(--rule); }
+.chip { display: grid; grid-template-columns: 12px 1fr; column-gap: 10px; align-items: start; }
+.sw { width: 12px; height: 12px; margin-top: 5px; border: 1px solid rgba(0,0,0,0.25); }
+.chip b { font-weight: 600; display: block; }
+.chip .mono { font-size: 0.82rem; color: var(--muted); }
+.arrow { color: var(--ink); }
+.arrow svg { display: block; width: 70px; height: 28px; }
+.feel { font-size: 0.93rem; }
+.feel .mono { color: var(--muted); font-size: 0.8rem; display: block; }
+@media (max-width: 760px) {
+  .fit { grid-template-columns: minmax(0, 1fr) 40px minmax(0, 1fr); }
+  .arrow svg { width: 40px; }
+  .feel { grid-column: 1 / -1; padding-left: 22px; }
+}
+
+.notes { background: var(--sheet); border: 1.5px solid var(--accent); padding: 18px; display: grid; gap: 12px; }
+.notes label { font-weight: 600; }
+.notes textarea { width: 100%; min-height: 160px; font: 15px/1.5 var(--body); color: var(--ink); background: var(--paper); border: 1px solid var(--rule); padding: 10px; resize: vertical; }
+.notes textarea:focus-visible { outline: 2px solid var(--accent); outline-offset: 1px; }
+.row { display: flex; flex-wrap: wrap; gap: 12px; align-items: center; }
+button { font: 600 0.95rem var(--body); color: var(--sheet); background: var(--accent); border: 0; padding: 10px 18px; cursor: pointer; }
+button:focus-visible { outline: 2px solid var(--ink); outline-offset: 2px; }
+.status { color: var(--muted); font-size: 0.9rem; }
+</style>
+
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <defs>
+    <symbol id="into" viewBox="0 0 70 28">
+      <line x1="2" y1="14" x2="60" y2="14" stroke="currentColor" stroke-width="1.8"/>
+      <polygon points="60,8 69,14 60,20" fill="currentColor"/>
+      <text x="30" y="9" text-anchor="middle" font-family="IBM Plex Mono, monospace" font-size="10" fill="currentColor">into</text>
+    </symbol>
+  </defs>
+</svg>
+
+<div class="wrap">
+  <header>
+    <h1>Reel Test-Fit Map</h1>
+    <p class="lede">Which piece on the test-fit plate goes into which, how each fit should feel, and what to report back. This is round two, after the first plate came out too tight.</p>
+  </header>
+
+  <section>
+    <div class="sechead">
+      <span class="tag">Round two</span>
+      <h2>What changed since the first plate</h2>
+    </div>
+    <ul class="changes">
+      <li><b>Corners filleted.</b> Every hex and octagon now has rounded corners, 1.5 mm on the male and 1.0 on the hole, so the ringing at a sharp corner has nowhere to land. A male corner still clears the hole's corner.</li>
+      <li><b>Hexes: 0.8 clearance across the flats</b>, up from 0.3.</li>
+      <li><b>Round fits loosened.</b> Axle-tube bearings 0.9 on diameter (was 0.6). Lock and hinge holes 8.6 with 7.6 pins (were 8.4 and 7.8). Cross-pin hole 6.9 with a 6.1 pin (were 6.6 and 6.2).</li>
+      <li><b>Snaps halved.</b> The tube's lip and the pin tips now overlap their hole's edge by 0.15 mm each side, about half as much as before.</li>
+      <li><b>Size ladders.</b> The hex holes, the crank hex and the pin holes each come in three sizes, marked by 1, 2 or 3 notches. One notch is 0.2 mm tighter than the design, two is the design, three is 0.2 looser.</li>
+    </ul>
+    <p class="mono" style="font-size:0.9rem;color:var(--muted)">Plate: 4h 49m, 41 g PLA, 4 mm brim. File: reel-test_fit.gcode</p>
+  </section>
+
+  <section>
+    <div class="sechead">
+      <span class="tag">Find the pieces</span>
+      <h2>What's on the plate</h2>
+    </div>
+    <figure>
+      <img src="png/17_test_fit_plate.png" alt="Test-fit plate from above with each piece labelled" width="1350" height="638">
+      <figcaption><b>The plate from above.</b> Cheek strip, ladder bar, tube stub, hanger shaft, hinge pin, cross pin, three crank stubs, and a nominal 1/2" hole.</figcaption>
+    </figure>
+    <div class="pair">
+      <figure>
+        <img src="png/19_cheek_strip.png" alt="Cheek strip face on: two large axle-tube holes and three notched pin holes" width="1350" height="702">
+        <figcaption><b>Cheek strip</b>, the way the chassis cheeks print. From left: head-side bearing hole, snap-side bearing hole, then three pin holes with 1, 2 and 3 notches above them.</figcaption>
+      </figure>
+      <figure>
+        <img src="png/20_ladder_bar.png" alt="Ladder bar from above: three hex holes over three pairs of round holes, notched 1, 2, 3" width="1350" height="756">
+        <figcaption><b>Ladder bar</b>, the way the wheel and the lying shaft print. Three columns notched 1, 2, 3. Each has a wheel hex hole on top, and below it a pin hole (the larger) and a cross-pin hole (the smaller).</figcaption>
+      </figure>
+    </div>
+  </section>
+
+  <section>
+    <div class="sechead">
+      <span class="tag">The map</span>
+      <h2>What goes into what</h2>
+      <p>Left goes into right. Try each ladder in all three sizes and note the one that feels right. The design size is always the middle one (2 notches).</p>
+    </div>
+    <div class="key">
+      <span><span class="ladder-mark">1 2 3</span> three sizes, tight to loose</span>
+    </div>
+
+    <div class="map" role="list" aria-label="Test fits: each row is one piece going into another">
+      <div class="group">Axle tube</div>
+      <div class="fit" role="listitem">
+        <div class="chip"><span class="sw" style="background:var(--c-tube)"></span><div><b>Tube stub, wide end</b><span class="mono">Ø24.0 bearing</span></div></div>
+        <div class="arrow"><svg viewBox="0 0 70 28" role="img" aria-label="into"><use href="#into"/></svg></div>
+        <div class="chip"><span class="sw" style="background:var(--c-chassis)"></span><div><b>Cheek strip, big hole</b><span class="mono">Ø24.9</span></div></div>
+        <div class="feel">Turns freely with a little play.<span class="mono">real part: tube in the head-side cheek</span></div>
+      </div>
+      <div class="fit" role="listitem">
+        <div class="chip"><span class="sw" style="background:var(--c-tube)"></span><div><b>Tube stub, slotted end</b><span class="mono">Ø20.0 + lip</span></div></div>
+        <div class="arrow"><svg viewBox="0 0 70 28" role="img" aria-label="into"><use href="#into"/></svg></div>
+        <div class="chip"><span class="sw" style="background:var(--c-chassis)"></span><div><b>Cheek strip, middle hole</b><span class="mono">Ø20.9</span></div></div>
+        <div class="feel">A firm thumb push, a click, then it turns and stays.<span class="mono">real part: tube's snap end in the far cheek</span></div>
+      </div>
+      <div class="fit" role="listitem">
+        <div class="chip"><span class="sw" style="background:var(--c-tube)"></span><div><b>Tube stub, hex middle</b><span class="mono">21.0 across flats</span></div></div>
+        <div class="arrow"><svg viewBox="0 0 70 28" role="img" aria-label="into"><use href="#into"/></svg></div>
+        <div class="chip"><span class="sw" style="background:var(--c-wheel)"></span><div><b>Ladder bar, hex holes</b> <span class="ladder-mark">1 2 3</span><span class="mono">21.6 · 21.8 · 22.0</span></div></div>
+        <div class="feel">Slides in by hand and doesn't rock.<span class="mono">real part: tube driving the wheel</span></div>
+      </div>
+
+      <div class="group">Crank</div>
+      <div class="fit" role="listitem">
+        <div class="chip"><span class="sw" style="background:var(--c-crank)"></span><div><b>Crank stubs</b> <span class="ladder-mark">1 2 3</span><span class="mono">11.6 · 11.4 · 11.2 across flats</span></div></div>
+        <div class="arrow"><svg viewBox="0 0 70 28" role="img" aria-label="into"><use href="#into"/></svg></div>
+        <div class="chip"><span class="sw" style="background:var(--c-tube)"></span><div><b>Tube stub, hex socket</b><span class="mono">12.2 across flats</span></div></div>
+        <div class="feel">Slides in and pulls out by hand, and turns the tube without slipping.<span class="mono">real part: crank in the axle tube</span></div>
+      </div>
+
+      <div class="group">Lock and hinge pins (and a pencil crayon)</div>
+      <div class="fit" role="listitem">
+        <div class="chip"><span class="sw" style="background:var(--c-hinge)"></span><div><b>Hinge pin, or a pencil crayon</b><span class="mono">Ø7.6, snap tip</span></div></div>
+        <div class="arrow"><svg viewBox="0 0 70 28" role="img" aria-label="into"><use href="#into"/></svg></div>
+        <div class="chip"><span class="sw" style="background:var(--c-chassis)"></span><div><b>Cheek strip, pin holes</b> <span class="ladder-mark">1 2 3</span><span class="mono">8.4 · 8.6 · 8.8, pointed tops</span></div></div>
+        <div class="feel">Slides through. The snap tip squeezes past and clicks open on the far side.<span class="mono">real part: lock and hinge holes in the cheeks</span></div>
+      </div>
+      <div class="fit" role="listitem">
+        <div class="chip"><span class="sw" style="background:var(--c-hinge)"></span><div><b>Hinge pin, or a pencil crayon</b><span class="mono">Ø7.6</span></div></div>
+        <div class="arrow"><svg viewBox="0 0 70 28" role="img" aria-label="into"><use href="#into"/></svg></div>
+        <div class="chip"><span class="sw" style="background:var(--c-wheel)"></span><div><b>Ladder bar, larger round holes</b> <span class="ladder-mark">1 2 3</span><span class="mono">8.4 · 8.6 · 8.8</span></div></div>
+        <div class="feel">Drops in with a gentle push.<span class="mono">real part: lock holes in the wheel</span></div>
+      </div>
+      <div class="fit" role="listitem">
+        <div class="chip"><span class="sw" style="background:var(--c-hinge)"></span><div><b>Hinge pin</b><span class="mono">Ø7.6</span></div></div>
+        <div class="arrow"><svg viewBox="0 0 70 28" role="img" aria-label="into"><use href="#into"/></svg></div>
+        <div class="chip"><span class="sw" style="background:var(--c-shaft)"></span><div><b>Hanger shaft, round end</b><span class="mono">Ø8.6</span></div></div>
+        <div class="feel">The shaft swings freely on the pin.<span class="mono">real part: the hinge</span></div>
+      </div>
+
+      <div class="group">Cross pin</div>
+      <div class="fit" role="listitem">
+        <div class="chip"><span class="sw" style="background:var(--c-pin)"></span><div><b>Cross pin</b><span class="mono">Ø6.1, snap tip</span></div></div>
+        <div class="arrow"><svg viewBox="0 0 70 28" role="img" aria-label="into"><use href="#into"/></svg></div>
+        <div class="chip"><span class="sw" style="background:var(--c-wheel)"></span><div><b>Ladder bar, smaller round holes</b> <span class="ladder-mark">1 2 3</span><span class="mono">6.7 · 6.9 · 7.1</span></div></div>
+        <div class="feel">Slides through, the snap tip clicks.<span class="mono">compare with the shaft's hole below</span></div>
+      </div>
+      <div class="fit" role="listitem">
+        <div class="chip"><span class="sw" style="background:var(--c-pin)"></span><div><b>Cross pin</b><span class="mono">Ø6.1</span></div></div>
+        <div class="arrow"><svg viewBox="0 0 70 28" role="img" aria-label="into"><use href="#into"/></svg></div>
+        <div class="chip"><span class="sw" style="background:var(--c-shaft)"></span><div><b>Hanger shaft, hole near the tip</b><span class="mono">Ø6.9</span></div></div>
+        <div class="feel">Slides through, clicks, and holds the shaft up.<span class="mono">real part: the cross pin above the shelf</span></div>
+      </div>
+
+      <div class="group">Hanger shaft</div>
+      <div class="fit" role="listitem">
+        <div class="chip"><span class="sw" style="background:var(--c-shaft)"></span><div><b>Hanger shaft, octagon</b><span class="mono">11.4 across flats</span></div></div>
+        <div class="arrow"><svg viewBox="0 0 70 28" role="img" aria-label="into"><use href="#into"/></svg></div>
+        <div class="chip"><span class="sw" style="background:var(--c-board)"></span><div><b>1/2" hole plate, then your shelf</b><span class="mono">Ø12.7</span></div></div>
+        <div class="feel">Slides through and turns. The shelf's drilled hole is the one that counts.<span class="mono">real part: the shaft in the shelf</span></div>
+      </div>
+    </div>
+  </section>
+
+  <section class="notes">
+    <label for="fit-notes">What to report back</label>
+    <p class="status">For each ladder, which notch count feels right: wheel hex holes, crank stubs, cheek pin holes, ladder-bar pin holes, cross-pin holes. Then anything else that's still tight, loose, or won't snap. Copy it and paste it into the chat. Notes stay in this browser only.</p>
+    <textarea id="fit-notes">wheel hex holes:
+crank stubs:
+cheek pin holes:
+ladder-bar pin holes:
+cross-pin holes:
+tube bearings and snap lip:
+hinge pin in shaft / cross pin in shaft:
+shaft in 1/2" hole and shelf:
+</textarea>
+    <div class="row">
+      <button type="button" id="copy-notes">Copy notes</button>
+      <span class="status" id="copy-status" role="status"></span>
+    </div>
+  </section>
+</div>
+
+<script>
+(function () {
+  var box = document.getElementById("fit-notes");
+  var status = document.getElementById("copy-status");
+  var KEY = "reel-fit-notes-round2";
+  try { var saved = localStorage.getItem(KEY); if (saved) box.value = saved; } catch (e) {}
+  box.addEventListener("input", function () { try { localStorage.setItem(KEY, box.value); } catch (e) {} });
+  document.getElementById("copy-notes").addEventListener("click", function () {
+    var text = "Reel test fit, round two:\n" + box.value.trim();
+    function fallback() { box.focus(); box.select(); status.textContent = "Selected. Press Ctrl+C or Cmd+C to copy."; }
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+      navigator.clipboard.writeText(text).then(function () { status.textContent = "Copied. Paste it into the chat."; }, fallback);
+    } else { fallback(); }
+  });
+})();
+</script>

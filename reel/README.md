@@ -33,8 +33,8 @@ Both plates slice with the domino profile plus a 4 mm brim. Without the brim, Pr
 
 | Plate | What's on it | Time | PLA |
 | --- | --- | --- | --- |
-| test_fit | a cheek strip with both tube holes and a pin hole; a hub ring with the wheel's hex and a lock hole; a short axle tube; the hanger shaft; the hinge and cross pins; a crank-hex stub; a nominal 1/2" hole | 3h 23m | 28 g |
-| full | all eight parts | 17h 36m | 168 g |
+| test_fit | a cheek strip with both tube holes and three pin holes; a ladder bar with three wheel hexes, three pin holes and three cross-pin holes; a short axle tube; the hanger shaft; the hinge and cross pins; three crank-hex stubs; a nominal 1/2" hole. `reel/fit_map.html` says what goes into what. | 4h 49m | 41 g |
+| full | all eight parts | 17h 25m | 167 g |
 
 The only slicer warning left on the full plate is "long bridging extrusions", which is the bridge's 28 mm underside.
 
@@ -42,13 +42,16 @@ Assembly: shaft's tongue into the slot and hinge pin through → wheel between t
 
 ## Fits
 
-These are first guesses, to be settled by a test-fit plate before the full print:
+The first test fit, at 0.3 across a hex's flats and 0.6 on a round fit, was too tight: the hexes would not go in at all, and every round fit took too much force. The printer's extrusion and elephant's foot are calibrated, so the blame went to sharp corners ringing, plus too little clearance. Round two:
 
-| Fit | Clearance |
-| --- | --- |
-| tube bearings in the cheeks | 0.6 on diameter |
-| tube hex in the wheel | 0.3 across flats |
-| crank hex in the tube | 0.3 across flats |
-| tongue in its slot | 0.8 on width |
-| printed pins in their holes | 0.6 (lock, hinge), 0.4 (cross) |
-| shaft corners in the 1/2" hole | 0.36 |
+| Fit | Sizes | Clearance |
+| --- | --- | --- |
+| hexes (tube in wheel, crank in tube) | corners filleted 1.5 male, 1.0 female | 0.8 across flats |
+| tube bearings in the cheeks | Ø24 in Ø24.9, Ø20 in Ø20.9 | 0.9 on diameter |
+| lock and hinge pins | Ø7.6 in Ø8.6 | 1.0 on diameter |
+| cross pin | Ø6.1 in Ø6.9 | 0.8 on diameter |
+| tongue in its slot | 11.4 in 12.6 | 1.2 |
+| shaft in the 1/2" hole | octagon 11.4 across flats, corners filleted 1.5, in Ø12.7 | |
+| snaps (tube lip, pin tips) | overlap the hole's edge by 0.15 each side | |
+
+The test-fit plate carries ladders for the hexes and pin holes: 1, 2 or 3 notches mark 0.2 tighter than these, these, and 0.2 looser.

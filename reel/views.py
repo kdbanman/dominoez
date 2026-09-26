@@ -6,6 +6,7 @@ from pathlib import Path
 from manifold3d import Manifold
 
 from . import parts as P
+from . import plates
 from .plates import placed_views
 from .render import render, save
 from .spec import (BOARD_HOLE, BOARD_T, BOARD_Z, CRANK, CROSS_Z, FLANGE_R, FLOOR_R, GROOVE_X, LINE_N,
@@ -123,6 +124,27 @@ def render_all(out: Path):
     save(out, "16_tube_crank", render([("axle_tube", P.tube_print()),
                                        ("crank", P.crank_print().translate([40, -40, 0]))], 220, 35,
                                       "Axle tube (head down) and crank (flat), as printed", size=(900, 700)))
-    save(out, "17_test_fit_plate", render(placed_views("test_fit"), 200, 50,
-                                          "Test-fit plate: stubs and coupons for every fit", size=(1100, 650)))
-    save(out, "18_full_plate", render(placed_views("full"), 200, 50, "Full plate: all eight parts", size=(1100, 800)))
+    labels = {"cheek": "cheek strip", "ladder_bar": "ladder bar", "tube_stub": "tube stub", "hanger_shaft": "hanger shaft",
+              "hinge_pin": "hinge pin", "cross_pin": "cross pin", "crank_stub_1": "crank 1", "crank_stub_2": "crank 2",
+              "crank_stub_3": "crank 3", "shelf_hole": "1/2\" hole"}
+    test = placed_views("test_fit")
+    mid_y = sum((m.bounding_box()[1] + m.bounding_box()[4]) / 2 for _, _, m in test) / len(test)
+    ann = []
+    for piece, _, m in test:
+        b = m.bounding_box()
+        cx, cy = (b[0] + b[3]) / 2, (b[1] + b[4]) / 2
+        up = cy > mid_y
+        ann.append(("label", (cx, b[4] if up else b[1], b[5]), labels[piece], (18, -34 if up else 34)))
+    save(out, "17_test_fit_plate", render([(c, m) for _, c, m in test], 270, 89.5,
+                                          "Test-fit plate from above", size=(1100, 520), annotate=ann))
+    save(out, "18_full_plate", render([(c, m) for _, c, m in placed_views("full")], 200, 50,
+                                      "Full plate: all eight parts", size=(1100, 800)))
+    cheek = plates.cheek_coupon()
+    save(out, "19_cheek_strip", render([("chassis", cheek)], 0, 0, "Cheek strip, face on (prints standing like this)",
+                                       size=(1000, 520), annotate=[
+        ("label", (0, -32, 15 + 12.5), "head-side bearing", (-20, -70)),
+        ("label", (0, -4, 15 + 10.5), "snap-side bearing", (20, -70)),
+        ("label", (0, 28, 35), "pin holes, notched 1 2 3", (40, -40))]))
+    bar = plates.ladder_bar()
+    save(out, "20_ladder_bar", render([("wheel", bar)], 270, 89.5, "Ladder bar from above (prints flat like this)",
+                                      size=(1000, 560)))

@@ -42,18 +42,27 @@ def polygon(n, af, phase):
             for i in range(n)]
 
 
-def hexagon(af):
-    """Flats top and bottom."""
-    return polygon(6, af, 0)
+def rounded(poly, r) -> CrossSection:
+    """A polygon with its corners filleted to radius r; its flats stay where they were."""
+    return CrossSection([poly]).offset(-r, JoinType.Round, circular_segments=48).offset(r, JoinType.Round, circular_segments=48)
 
 
-def octagon(af):
-    """Flats on the axes."""
-    return polygon(8, af, 22.5)
+def hexagon(af, fillet=MALE_FILLET) -> CrossSection:
+    """Flats top and bottom, corners filleted."""
+    return rounded(polygon(6, af, 0), fillet)
 
 
-def z_prism(poly, z0, z1) -> Manifold:
-    return CrossSection([poly]).extrude(z1 - z0).translate([0, 0, z0])
+def hex_hole(af) -> CrossSection:
+    return hexagon(af, FEMALE_FILLET)
+
+
+def octagon(af, fillet=MALE_FILLET) -> CrossSection:
+    """Flats on the axes, corners filleted."""
+    return rounded(polygon(8, af, 22.5), fillet)
+
+
+def z_prism(cs: CrossSection, z0, z1) -> Manifold:
+    return cs.extrude(z1 - z0).translate([0, 0, z0])
 
 
 def teardrop(d, at=(0.0, 0.0)) -> CrossSection:
@@ -80,7 +89,7 @@ def wheel_print() -> Manifold:
         (0, 0), (FLANGE_R, 0), (FLANGE_R, h1), (FLOOR_R, h1), (FLOOR_R, h2), (FLANGE_R, h3),
         (FLANGE_R, WHEEL_W), (FLANGE_R - k, WHEEL_W), (FLANGE_R - k, h3), (FLOOR_R - k, h2),
         (FLOOR_R - k, WEB), (HUB_R, WEB), (HUB_R, WHEEL_W), (0, WHEEL_W)]])
-    w = Manifold.revolve(prof, SEG) - z_prism(hexagon(WHEEL_HEX_AF), -1, WHEEL_W + 1)
+    w = Manifold.revolve(prof, SEG) - z_prism(hex_hole(WHEEL_HEX_AF), -1, WHEEL_W + 1)
     for i in range(LOCK_N):
         x, y = on_lock_circle(90 + 360 / LOCK_N * i)
         w = w - Manifold.cylinder(WHEEL_W + 2, PENCIL_HOLE / 2, PENCIL_HOLE / 2, 48).translate([x, y, -1])
@@ -107,13 +116,20 @@ def tube_print() -> Manifold:
     t = t + z_cyl(BEAR_HEAD, z(-XO - 0.5), z(-WHEEL_W / 2))
     t = t + z_prism(hexagon(TUBE_HEX_AF), z(-WHEEL_W / 2), z(WHEEL_W / 2))
     t = t + z_cyl(BEAR_SNAP, z(WHEEL_W / 2), z(XO + 0.5))
-    # lip: a 0.8 mm ledge that catches the cheek, then a lead-in taper
     r = BEAR_SNAP / 2
-    t = t + Manifold.cylinder(2.0, r + 0.8, r - 0.3, SEG).translate([0, 0, z(XO + 0.5)])
-    t = t - z_prism(hexagon(BORE_HEX_AF), -1, z(XO + 5))
+    t = t + snap_lip(z(XO + 0.5))
+    t = t - z_prism(hex_hole(BORE_HEX_AF), -1, z(XO + 5))
     for ang in (0, 90):
         t = t - Manifold.cube([40, 2.0, 16], center=True).rotate([0, 0, ang]).translate([0, 0, z(XO + 2.5)])
     return t
+
+
+def snap_lip(z0) -> Manifold:
+    """The tube's lip: a ledge that overlaps the snap-side hole's edge by SNAP_GRIP, then a
+    lead-in taper. The slots let it squeeze through."""
+    r = BEAR_SNAP / 2
+    ledge = (BEAR_SNAP + BEAR_CLEAR) / 2 + SNAP_GRIP
+    return Manifold.cylinder(2.0, ledge, r - 0.3, SEG).translate([0, 0, z0])
 
 
 def tube_world() -> Manifold:
@@ -223,9 +239,11 @@ def pin_print(name) -> Manifold:
     out = body + Manifold.cube([tl, tw, 2 * z0]).translate([0, -tw / 2, 0])
     if snap:
         tip = tl + length
-        bump = Manifold.hull(Manifold.cube([0.1, d + 1.0, 2 * z0], center=True).translate([tip - 4, 0, z0]) +
+        hole = PENCIL_HOLE if d == PENCIL_PIN else CROSS_HOLE
+        wide = hole + 2 * SNAP_GRIP
+        bump = Manifold.hull(Manifold.cube([0.1, wide, 2 * z0], center=True).translate([tip - 4, 0, z0]) +
                              Manifold.cube([0.1, d - 0.4, 2 * z0], center=True).translate([tip - 0.05, 0, z0]))
-        bump = bump ^ x_cyl(d + 1.0, tip - 5, tip, 0, z0, 48)
+        bump = bump ^ x_cyl(wide, tip - 5, tip, 0, z0, 48)
         out = out + bump
         out = out - Manifold.cube([12, 1.2, 20], center=True).translate([tip - 4, 0, 5])
     return out
@@ -246,9 +264,9 @@ def crank_print() -> Manifold:
     """Z-shaped and flat: hex rod, arm, knob, all on one bed plane."""
     af = CRANK_HEX_AF
     along_x = np.array([[0, 0, 1, 0], [1, 0, 0, 0], [0, 1, 0, af / 2]], float)
-    rod = CrossSection([hexagon(af)]).extrude(CRANK_ROD).transform(along_x)
+    rod = hexagon(af).extrude(CRANK_ROD).transform(along_x)
     arm = Manifold.cube([CRANK_ARM_T, CRANK + 18, af]).translate([CRANK_ROD, -9, 0])
-    knob = CrossSection([octagon(af)]).extrude(KNOB_L).transform(along_x).translate([CRANK_ROD + CRANK_ARM_T, CRANK, 0])
+    knob = octagon(af).extrude(KNOB_L).transform(along_x).translate([CRANK_ROD + CRANK_ARM_T, CRANK, 0])
     return rod + arm + knob
 
 

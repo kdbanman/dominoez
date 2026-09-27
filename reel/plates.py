@@ -15,8 +15,8 @@ import trimesh
 from manifold3d import CrossSection, Manifold, OpType
 
 from . import parts as P
-from .spec import (BEAR_CLEAR, BEAR_HEAD, BEAR_SNAP, BOARD_HOLE, CHEEK_T, CRANK_HEX_AF, CROSS_HOLE, PENCIL_HOLE,
-                   WHEEL_HEX_AF)
+from .spec import (BEAR_CLEAR, BEAR_CLEAR_SNAP, BEAR_HEAD, BEAR_SNAP, BOARD_HOLE, CHEEK_T, CRANK_HEX_AF, CROSS_HOLE,
+                   PENCIL_HOLE,                    WHEEL_HEX_AF)
 
 GAP = 8.0          # between parts on the bed
 BED_USE = 270.0    # the 290 bed less a 10 mm margin each side
@@ -43,7 +43,7 @@ def cheek_coupon() -> Manifold:
     w, h, zc = 96.0, 35.0, 15.0  # tall enough for the big hole and its pointed top
     x0 = -w / 2
     plate = CrossSection.square((w, h)).translate([x0, 0])
-    plate = plate - P.teardrop(BEAR_HEAD + BEAR_CLEAR, (x0 + 16, zc)) - P.teardrop(BEAR_SNAP + BEAR_CLEAR, (x0 + 44, zc))
+    plate = plate - P.teardrop(BEAR_HEAD + BEAR_CLEAR, (x0 + 16, zc)) - P.teardrop(BEAR_SNAP + BEAR_CLEAR_SNAP, (x0 + 44, zc))
     for i, extra in enumerate(LADDER):
         x = x0 + 64 + 12 * i
         plate = plate - P.teardrop(PENCIL_HOLE + extra, (x, zc)) - notches(i + 1, (x, h))

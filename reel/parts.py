@@ -128,7 +128,7 @@ def snap_lip(z0) -> Manifold:
     """The tube's lip: a ledge that overlaps the snap-side hole's edge by SNAP_GRIP, then a
     lead-in taper. The slots let it squeeze through."""
     r = BEAR_SNAP / 2
-    ledge = (BEAR_SNAP + BEAR_CLEAR) / 2 + SNAP_GRIP
+    ledge = (BEAR_SNAP + BEAR_CLEAR_SNAP) / 2 + SNAP_GRIP
     return Manifold.cylinder(2.0, ledge, r - 0.3, SEG).translate([0, 0, z0])
 
 
@@ -175,7 +175,7 @@ def chassis_world() -> Manifold:
     """Two A-shaped cheeks joined by the round bridge at the top. Prints upright on the feet."""
     common = teardrop(PENCIL_HOLE, on_lock_circle(90)) + teardrop(PENCIL_HOLE, (0, PIVOT_Z)) + window()
     left = yz_plate(cheek_outline() - teardrop(BEAR_HEAD + BEAR_CLEAR) - common, CHEEK_T, -XO)
-    right = yz_plate(cheek_outline() - teardrop(BEAR_SNAP + BEAR_CLEAR) - common, CHEEK_T, XI)
+    right = yz_plate(cheek_outline() - teardrop(BEAR_SNAP + BEAR_CLEAR_SNAP) - common, CHEEK_T, XI)
     bridge_cs = CrossSection.circle(BRIDGE_R, SEG).translate([0, PIVOT_Z]) + \
         CrossSection.square((2 * BRIDGE_R, BRIDGE_FLAT)).translate([-BRIDGE_R, PIVOT_Z - BRIDGE_FLAT])
     bridge = yz_plate(bridge_cs - teardrop(PENCIL_HOLE, (0, PIVOT_Z)), 2 * XI, -XI)

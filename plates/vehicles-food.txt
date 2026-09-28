@@ -1,0 +1,14 @@
+excavator
+tractor
+helicopter
+scooter
+skateboard
+monster_truck
+pizza_slice
+ice_cream_cone
+taco
+watermelon_slice
+pretzel
+cupcake
+popsicle
+brim=4  # round three batch one, replated after the forty-piece plate failed

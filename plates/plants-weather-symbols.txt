@@ -1,0 +1,18 @@
+cactus
+pine_tree
+tulip
+sunflower
+maple_leaf
+acorn
+sun
+rain_cloud
+lightning_bolt
+snowflake
+umbrella
+star
+smiley
+peace_sign
+yin_yang
+ampersand
+question_mark
+brim=4  # round three batch two

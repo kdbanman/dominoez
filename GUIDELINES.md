@@ -2,7 +2,7 @@
 
 Everything here follows from one fact: a domino prints standing on its foot, on a single-colour printer with a 0.4 mm nozzle. Vocabulary is in `CONTEXT.md`. Why we chose the tools is in `docs/adr/`.
 
-The printer is a Creality CR-10 Smart Pro and the filament is PLA. Both are fixed, so slicing is part of the build: `slicer/profile.ini` holds the PrusaSlicer settings (0.20 mm layers, 3 perimeters, 10% grid infill, a skirt, no supports). Only the blank's gcode is committed, as a check that the slicer output has not drifted; every motif's gcode is an artifact named `<motif>.gcode` on the latest CI run. Change the profile only by printing the change first, then pasting the config block from that gcode over the file.
+The printer is a Creality CR-10 Smart Pro and the filament is PLA. Both are fixed, so slicing is part of the build: `slicer/profile.ini` holds the PrusaSlicer settings (0.20 mm layers, 3 perimeters, 10% grid infill, a skirt, no supports). Only the blank's gcode is committed, as a check that the slicer output has not drifted; dominoes are printed as plates, and each plate's gcode is an artifact named `plate-<name>.gcode` on the latest CI run. Change the profile only by printing the change first, then pasting the config block from that gcode over the file.
 
 ## Body
 
@@ -123,6 +123,8 @@ Many dominoes print on one bed as a plate: standing, foot down, faces along x, i
 | Capacity | 6 across, 12 deep, 72 dominoes |
 
 A one-off plate is a manual run of the `plate` workflow with the motifs typed in; its gcode is an artifact on that run and nothing is committed. Plates wanted on every CI run are files in `plates/`: motif names, each optionally followed by a count like `x4`, or `*` for one of every motif. CI builds and slices every one and publishes its gcode as an artifact named `plate-<name>.gcode`. Plate outputs are not committed either way.
+
+A plate holds 10 to 20 dominoes, grouped by category and named for them (`vehicles-food`), because a plate fails as a whole: a forty-piece plate that failed two days in cost more than four plates of ten would have. `plates/` is the list of what is left to print. Every plate file has a sub-issue of the print tracker issue naming its dominoes; when the plate comes off the bed, delete its file and close the sub-issue, and a reprint is a manual `plate` workflow run. A new batch adds its plate files in its PR and its sub-issues when the PR merges.
 
 The plate is one STL and prints layer by layer across every domino at once. Sequential printing, one domino finished before the next starts, is not an option: the printer's clearance over a finished part is 20 mm and a domino is 72 mm tall. Layer by layer, every travel move crosses the plate at the height of every tower, and the profile has no lift on travel, so one tower knocked or strung ruins the plate. Longer layers do give each tower more time to cool. A plate is a bigger bet than a single domino; print a few before printing seventy.
 

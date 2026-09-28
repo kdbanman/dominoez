@@ -1,0 +1,13 @@
+guitar
+drum
+music_note
+trumpet
+cassette_tape
+minecraft_sword
+minecraft_axe
+minecraft_diamond
+space_invader
+pac_man_ghost
+tetris_t_piece
+conway_spaceship
+brim=4  # round three batch two

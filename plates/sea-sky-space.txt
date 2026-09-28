@@ -1,0 +1,12 @@
+sailboat
+anchor
+lighthouse
+hot_air_balloon
+submarine
+astronaut
+saturn
+crescent_moon
+ufo
+comet
+satellite
+brim=4  # round three batch one, replated after the forty-piece plate failed

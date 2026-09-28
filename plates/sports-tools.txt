@@ -1,0 +1,14 @@
+soccer_ball
+hockey_stick_and_puck
+bowling_pin
+trophy
+yo_yo
+tennis_racket
+medal
+hammer
+wrench
+screwdriver
+drill
+tape_measure
+gear
+brim=4  # round three batch two

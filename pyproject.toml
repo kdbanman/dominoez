@@ -15,6 +15,7 @@ dependencies = [
 [project.scripts]
 dominoez = "dominoez.cli:main"
 reel = "reel.cli:main"
+tenting = "tenting.cli:main"
 
 [dependency-groups]
 dev = ["pytest>=8", "rtree>=1.3"]  # rtree: trimesh needs it for point containment in tests
@@ -24,7 +25,7 @@ requires = ["hatchling"]
 build-backend = "hatchling.build"
 
 [tool.hatch.build.targets.wheel]
-packages = ["dominoez", "reel"]
+packages = ["dominoez", "reel", "tenting"]
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]
